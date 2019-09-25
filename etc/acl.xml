@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+	<acl>
+		<resources>
+			<resource id="Magento_Backend::admin">
+				<resource id="Olegnax_Core::olegnax" sortOrder="10" title="olegnax">
+					<resource id="Olegnax_Core::modules_update" sortOrder="10" title="modules update"/>
+				</resource>
+			</resource>
+		</resources>
+	</acl>
+</config>

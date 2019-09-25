@@ -1,0 +1,13 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+	<module name="Olegnax_Core" setup_version="1.0.10">
+		<sequence>
+			<module name="Magento_AdminNotification"/>
+			<module name="Magento_Catalog"/>
+			<module name="Magento_Cms"/>
+			<module name="Magento_Customer"/>
+			<module name="Magento_Store"/>
+			<module name="Magento_Wishlist"/>
+		</sequence>
+	</module>
+</config>

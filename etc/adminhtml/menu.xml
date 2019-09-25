@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+	<menu>
+		<add id="Olegnax_Core::Olegnax_Core" title="Olegnax" module="Olegnax_Core" sortOrder="10"
+			 resource="Olegnax_Core::Olegnax_Core"/>
+		<add id="Olegnax_Core::modules_update" action="olegnax/modules/update" module="Olegnax_Core"
+			 parent="Olegnax_Core::Olegnax_Core" resource="Olegnax_Core::modules_update" sortOrder="9999"
+			 title="Modules"/>
+	</menu>
+</config>

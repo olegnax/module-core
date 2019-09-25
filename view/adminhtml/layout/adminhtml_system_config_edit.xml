@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+	<head>
+		<css src="Olegnax_Core::onoff-trigger/on-off.css"/>
+		<link src="Olegnax_Core::onoff-trigger/on-off.js"/>
+	</head>
+	<body>
+		<referenceContainer name="page.content">
+			<container name="OX.content" htmlTag="div" htmlClass="block olegnax core notice content"
+					   after="page.main.actions">
+				<block name="olegnax.core.notice.content" class="Olegnax\Core\Block\Adminhtml\NoticeContent"/>
+			</container>
+			<container name="OX.contentp" htmlTag="div" htmlClass="block olegnax core notice contentp"
+					   after="page.main.actions">
+				<block name="olegnax.core.notice.contentp" class="Olegnax\Core\Block\Adminhtml\NoticeContentP"/>
+			</container>
+			<container name="OX.news" htmlTag="div" htmlClass="block olegnax core notice news"
+					   after="page.main.actions">
+				<block name="olegnax.core.notice.news" class="Olegnax\Core\Block\Adminhtml\NoticeNews"/>
+			</container>
+			<container name="OX.update" htmlTag="div" htmlClass="block olegnax core notice update"
+					   after="page.main.actions">
+				<block name="olegnax.core.notice.update" class="Olegnax\Core\Block\Adminhtml\NoticeUpdate"/>
+			</container>
+		</referenceContainer>
+	</body>
+</page>

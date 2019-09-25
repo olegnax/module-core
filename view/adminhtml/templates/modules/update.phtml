@@ -1,0 +1,93 @@
+<?php
+/**
+ * @author      Olegnax
+ * @package     Olegnax_Core
+ * @copyright   Copyright (c) 2019 Olegnax (http://olegnax.com/)
+ * @license     https://olegnax.com/license
+ */
+
+use Olegnax\Core\Block\Adminhtml\Modules\Update;
+
+/** @var $block Update */
+$modules = $block->getModuleVersions();
+$themes = $block->getThemeVersions();
+?>
+<div class="admin__page-section-item">
+	<div class="admin__page-section-item-content">
+		<table class="admin__table-secondary">
+			<thead>
+			<tr>
+				<th><?php echo $block->escapeHtml(__('Name')); ?></th>
+				<th><?php echo $block->escapeHtml(__('Enabled')); ?></th>
+				<th><?php echo $block->escapeHtml(__('Current Version')); ?></th>
+				<th><?php echo $block->escapeHtml(__('Latest Version')); ?></th>
+				<th><?php echo $block->escapeHtml(__('Extension Link')); ?></th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+            <?php foreach ($modules as $module) : ?>
+				<tr>
+					<td>
+						<span class="module-title"><?php echo $module['name'] ?></span>
+                        <?php if ($module['theme_module']) : ?>
+							<span class="module-theme-info">(<?php echo __('Theme module'); ?>)</span>
+                        <?php endif; ?>
+					</td>
+					<td><?php echo ($module['enabled']) ? __('Yes') : __('No') ?></td>
+					<td><?php echo $module['setup_version'] ?></td>
+					<td><?php echo $module['server_version'] ?></td>
+					<td>
+                        <?php if (array_key_exists('url', $module)): ?>
+							<a target="_blank" href="<?php echo $module['url'] ?>"><?php echo __('Visit page'); ?></a>
+                        <?php endif; ?>
+					</td>
+					<td>
+						<span class="rewrite-status rewrite-status-<?php echo ($module['update_status']) ? 'nok' : 'ok'; ?>"><?php echo ($module['update_status']) ? __('Update needed') : __('Up to Date'); ?></span>
+					</td>
+				</tr>
+            <?php endforeach; ?>
+			</tbody>
+		</table>
+	</div>
+</div>
+<?php if (count($themes)) : ?>
+	<hr/><br/>
+	<div class="admin__page-section-item">
+		<div class="admin__page-section-item-title">
+			<h1 class="page-title"><?php echo $block->escapeHtml(__('Themes')); ?></h1>
+		</div>
+		<div class="admin__page-section-item-content">
+			<table class="admin__table-secondary">
+				<thead>
+				<tr>
+					<th><?php echo $block->escapeHtml(__('Name')); ?></th>
+					<th><?php echo $block->escapeHtml(__('Current Version')); ?></th>
+					<th><?php echo $block->escapeHtml(__('Latest Version')); ?></th>
+					<th><?php echo $block->escapeHtml(__('Theme Link')); ?></th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+                <?php foreach ($themes as $theme) : ?>
+					<tr>
+						<td><span class="module-title"><?php echo $theme['name'] ?></span></td>
+						<td><?php echo $theme['setup_version'] ?></td>
+						<td><?php echo $theme['server_version'] ?></td>
+						<td>
+                            <?php if (array_key_exists('url', $theme)): ?>
+								<a target="_blank"
+								   href="<?php echo $theme['url'] ?>"><?php echo __('Visit page'); ?></a>
+                            <?php endif; ?>
+						</td>
+						<td>
+							<span class="rewrite-status rewrite-status-<?php echo ($theme['update_status']) ? 'nok' : 'ok'; ?>"><?php echo ($theme['update_status']) ? __('Update needed') : __('Up to Date'); ?></span>
+						</td>
+
+					</tr>
+                <?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+<?php endif; ?>
