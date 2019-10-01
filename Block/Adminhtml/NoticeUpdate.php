@@ -182,7 +182,7 @@ class NoticeUpdate extends Notice
             }
         }
 
-        return null;
+        return '';
     }
 
     /**

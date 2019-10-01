@@ -25,6 +25,8 @@ use Magento\Framework\Notification\MessageInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExistsFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExpiredFactory;
+use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContent;
+use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContentP;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OXFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxUpdate;
 use SimpleXMLElement;
@@ -112,12 +114,12 @@ class Feed extends AbstractModel
                 }
 
                 if ($type) {
-                    if (5 > $severity) {
-                        $severity = 5;
+                    if (OxContent::TYPE_CONTENT > $severity) {
+                        $severity = OxContent::TYPE_CONTENT;
                     }
                     $types[] = $type;
                 } else {
-                    if (5 == $severity || 6 == $severity) {
+                    if (OxContent::TYPE_CONTENT == $severity || OxContentP::TYPE_CONTENT == $severity) {
                         $type = 'global';
 
                         $types[] = $type;
@@ -433,20 +435,19 @@ class Feed extends AbstractModel
             if ($dirReader->isExist('composer.json')) {
                 $data = $dirReader->readFile('composer.json');
                 $data = json_decode($data, true);
-                if (array_key_exists('version', $data)) {
+                if (isset($data['version'])) {
                     return $data['version'];
-				}
-            } else {
-                if ($dirReader->isExist('etc/module.xml')) {
-                    $data = $dirReader->readFile('etc/module.xml');
-                    if (preg_match('/setup_version="([^\"]+)"/i', $data, $matches)) {
-                        return $matches[1];
-                    }
+                }
+            }
+            if ($dirReader->isExist('etc/module.xml')) {
+                $data = $dirReader->readFile('etc/module.xml');
+                if (preg_match('/setup_version="([^\"]+)"/i', $data, $matches)) {
+                    return $matches[1];
                 }
             }
         }
 
-        return null;
+        return '';
     }
 
     /**

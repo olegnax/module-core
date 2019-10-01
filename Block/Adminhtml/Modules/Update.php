@@ -23,7 +23,6 @@ use Magento\Framework\HTTP\Adapter\CurlFactory;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Psr\Log\LoggerInterface;
 use Zend_Http_Client;
 
 /** @noinspection ClassNameCollisionInspection */
@@ -116,19 +115,6 @@ class Update extends Template
 
         $data = preg_split('/^\r?$/m', $data, 2);
         $data = trim($data[1]);
-
-        ObjectManager::getInstance()->get(LoggerInterface::class)->debug('getModuleData',
-            [
-                $data,
-                $this->getModuleUrl(),
-                [
-                    'timeout' => 2,
-                    'maxredirects' => 5,
-                    'useragent' => 'Olegnax: ' . $this->productMetadata->getName() . '/' . $this->productMetadata->getVersion() . ' (' . $this->productMetadata->getEdition() . ')',
-                    'referer' => $this->getCurrentUrl(),
-                    'verifypeer' => false,
-                ]
-            ]);
 
         return $data;
     }
@@ -245,13 +231,14 @@ class Update extends Template
             if ($dirReader->isExist('composer.json')) {
                 $data = $dirReader->readFile('composer.json');
                 $data = json_decode($data, true);
-                return $data['version'];
-            } else {
-                if ($dirReader->isExist('etc/module.xml')) {
-                    $data = $dirReader->readFile('etc/module.xml');
-                    if (preg_match('/setup_version="([^\"]+)"/i', $data, $matches)) {
-                        return $matches[1];
-                    }
+                if (isset($data['version'])) {
+                    return $data['version'];
+                }
+            }
+            if ($dirReader->isExist('etc/module.xml')) {
+                $data = $dirReader->readFile('etc/module.xml');
+                if (preg_match('/setup_version="([^\"]+)"/i', $data, $matches)) {
+                    return $matches[1];
                 }
             }
         }
