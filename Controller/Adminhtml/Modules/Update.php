@@ -19,6 +19,7 @@ use Magento\Framework\View\Result\PageFactory;
 class Update extends Action
 {
 
+    const ADMIN_RESOURCE = 'Olegnax_Core::Modules_Update';
     protected $resultPageFactory;
 
     /**

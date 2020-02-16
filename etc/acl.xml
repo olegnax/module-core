@@ -4,8 +4,8 @@
 	<acl>
 		<resources>
 			<resource id="Magento_Backend::admin">
-				<resource id="Olegnax_Core::olegnax" sortOrder="10" title="olegnax">
-					<resource id="Olegnax_Core::modules_update" sortOrder="10" title="modules update"/>
+				<resource id="Olegnax_Core::Olegnax_Core" sortOrder="10" title="Olegnax">
+					<resource id="Olegnax_Core::Modules_Update" sortOrder="10" title="Modules Update"/>
 				</resource>
 			</resource>
 		</resources>

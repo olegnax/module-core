@@ -8,7 +8,6 @@
 
 namespace Olegnax\Core\Helper;
 
-use Magento\Backend\App\ConfigInterface;
 use Magento\Catalog\Helper\Product\Compare;
 use Magento\Cms\Model\Template\FilterProvider;
 use Magento\Customer\Model\Session;
@@ -51,23 +50,17 @@ class Helper extends AbstractHelper
         $path,
         $value,
         $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-        $storeCode = 0
+        $scopeId = 0
     ) {
         if (!empty($path)) {
             $path = static::CONFIG_MODULE . '/' . $path;
         }
-        if (!empty($storeCode)) {
-            $scope = ScopeInterface::SCOPE_STORE;
-        }
-        return $this->setSystemValue($path, $value, $scope, $storeCode);
+        return $this->setSystemValue($path, $value, $scope, $scopeId);
     }
 
-    public function setSystemValue($path, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $storeCode = 0)
+    public function setSystemValue($path, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
     {
-        if (!empty($storeCode)) {
-            $scope = ScopeInterface::SCOPE_STORE;
-        }
-        return $this->_loadObject(WriterInterface::class)->save($path, $value, $scope, $storeCode);
+        return $this->_loadObject(WriterInterface::class)->save($path, $value, $scope, $scopeId);
     }
 
     /**
@@ -89,10 +82,11 @@ class Helper extends AbstractHelper
 
     public function getSystemValue($path, $storeCode = null)
     {
-        if ($this->isAdmin() && null === $storeCode) {
-            return $this->_loadObject(ConfigInterface::class)->getValue($path);
-        }
-        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeCode);
+        return $this->scopeConfig->getValue(
+            $path,
+            !empty($storeCode) ? ScopeInterface::SCOPE_STORE : ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            $storeCode
+        );
     }
 
     /**
@@ -231,11 +225,16 @@ class Helper extends AbstractHelper
         return $this->_loadObject(Compare::class)->getItemCount();
     }
 
-    public function getBaseUrl()
+    public function getBaseUrl($type = UrlInterface::URL_TYPE_LINK, $secure = null)
+    {
+        return $this->getStore()->getBaseUrl($type, $secure);
+    }
+
+    public function getStore()
     {
         /** @var StoreManagerInterface $storeManager */
         $storeManager = $this->_loadObject(StoreManagerInterface::class);
-        return $storeManager->getStore()->getBaseUrl();
+        return $storeManager->getStore();
     }
 
     public function isMobile()
@@ -270,4 +269,5 @@ class Helper extends AbstractHelper
         $urlRewrite = $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
         return $currentUrl == $urlRewrite;
     }
+
 }

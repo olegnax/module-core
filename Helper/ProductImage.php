@@ -179,9 +179,12 @@ class ProductImage extends AbstractHelper
      * @param string $imageType
      * @return string
      */
-    private function getLabel(Product $product, string $imageType): string
+    private function getLabel(Product $product, $imageType): string
     {
-        $label = $product->getData($imageType . '_' . 'label');
+        $label = "";
+        if (!empty($imageType)) {
+            $label = $product->getData($imageType . '_' . 'label');
+        }
         if (empty($label)) {
             $label = $product->getName();
         }

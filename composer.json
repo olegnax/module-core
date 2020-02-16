@@ -1,7 +1,7 @@
 {
   "name": "olegnax/module-core",
   "description": "Olegnax Core. Required by all Olegnax extensions and themes.",
-  "version": "1.0.10.1",
+  "version": "1.0.11",
   "type": "magento2-module",
   "license": [
       "OSL-3.0"

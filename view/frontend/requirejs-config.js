@@ -4,6 +4,6 @@ var config = {
         'OXowlCarousel': 'Olegnax_Core/owl.carousel',
     },
     shim: {
-        'owl.carousel': {deps: ['jquery', 'jquery/ui']},
+        'owl.carousel': {deps: ['jquery', 'jquery-ui-modules/widget']},
     }
 };
