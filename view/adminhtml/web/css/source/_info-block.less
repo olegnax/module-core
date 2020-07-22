@@ -1,0 +1,264 @@
+/**
+ * Olegnax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Olegnax.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.olegnax.com/license
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Olegnax
+ * @package     Olegnax_Athlete2
+ * @copyright   Copyright (c) 2010-2019 Olegnax (http://www.olegnax.com/)
+ * @license     https://www.olegnax.com/license
+ */
+
+@athlete2__icon--support-tiny: '@{baseDir}Olegnax_Core/images/support-icon-tiny.png';
+@athlete2__icon--docs-tiny: '@{baseDir}Olegnax_Core/images/docs-icon-tiny.png';
+@ox-logo: '@{baseDir}Olegnax_Core/images/ox.png';
+
+/* -------------------------------
+
+ Module Info block above settings 
+
+------------------------------- */
+
+.ox-info-block{
+    padding-left: 108px;
+    position:relative;
+    box-shadow: 1px 4px 27px rgba(210, 225, 240, 0.54);
+    padding: 20px 30px;
+    display: flex;
+    flex-wrap:wrap;
+    min-height: 40px;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-left:108px;
+    a{
+        border-bottom:1px solid;
+        text-decoration: none;
+    }
+    .ox-info-block__right{
+        width:100%;
+        display: flex;
+        align-items: center;
+        margin-top: 15px;
+    }
+    .ox-info-block__docs{
+        &:before{
+            content:'';
+            display: inline-block;
+            width:31px;
+            height:28px;
+            margin-right:15px;
+            background-image: url(@athlete2__icon--docs-tiny);
+            background-position: center;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+        }
+        a{            
+            font-weight: 600;
+            color:#1f1e32;
+            border-color:transparent;
+            transition:all 0.2s ease;
+            &:hover{
+                border-color:black;
+            }
+        }
+    }
+    .ox-info-block__support{
+        &:before{
+            content: '';
+            width: 1px;
+            height: 20px;
+            background: #e4e4e4;
+            display: inline-block;
+            position: relative;
+            margin-left: 25px;
+            vertical-align: middle;
+            margin-right: 25px;
+            top: -10px;
+        }
+        .label{
+            font-weight: 600;
+            color:#1f1e32;
+            display:block;
+            width: 100%;
+            padding: 0;
+            float: none;
+            text-align: left;
+        }
+        a{
+            font-weight:600;
+            font-size: 13px;
+            color:#1f1e32;
+            position: relative;
+            top: -3px;
+            transition:all 0.2s ease;
+            &:hover{
+                border-color:transparent;
+            }
+        }
+        .ox-wrapper{
+            display: inline-block;
+            padding-left: 43px;
+            position: relative;
+            &:before{
+                content:'';
+                display: inline-block;
+                width:29px;
+                height:26px;
+                margin-right:15px;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-image: url(@athlete2__icon--support-tiny);
+                position: absolute;
+                left: 0;
+                top: 4px;
+            }
+        }
+        &.ox-support-expired{
+            .label{
+                color: #b4b4b4;
+            }
+        }
+        &.ox-support-active{
+            a{
+                &:after{
+                    content: '';
+                    width: 10px;
+                    height: 10px;
+                    background: #95d033;
+                    display: inline-block;
+                    border-radius: 6px;
+                    position: relative;
+                    margin-left: 5px;
+                }
+            }
+        }
+    }
+    .ox-info-block__logo{
+        line-height: 0;
+        display: block;
+        border: none;
+        text-decoration: none;
+        background: #2b292a;
+        width:78px;
+        position: absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        &:before{
+            content:'';
+            display: block;
+            width:49px;
+            height:33px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: url(@ox-logo);
+            position: absolute;
+            top: 50%;
+            margin-top: -16px;
+            left: 50%;
+            margin-left: -25px;
+        }
+    }
+    .ox-info-block__title{
+        font-weight: 800;
+        color:#1f1e32;
+        font-size:16px;
+        &:after{
+            content: '';
+            width: 1px;
+            height: 20px;
+            background: #e4e4e4;
+            display: inline-block;
+            position: relative;
+            margin-left: 25px;
+            vertical-align: middle;
+            margin-right: 25px;
+        }
+    }
+    .ox-info-block__dev{
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.2;
+        margin-right: 25px;
+    }
+    .ox-info-block__version{
+        margin-right:25px;
+        a{
+            transition:all 0.2s ease;
+            margin-left: 12px;
+            color:#494949;
+            border-bottom:1px solid;
+            text-decoration: none;
+            font-weight: 600;
+            &:hover{
+                border-color:transparent;
+            }
+        }
+        .ox-module-version{
+            color: #41362f;
+            font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 1.36;
+            font-size: 1.4rem;
+         }
+        .ox-modules-expired,
+        .ox-module-expired,
+        .ox-module-version,
+        .ox-theme-version{
+            &:before{
+                content: '';
+                width: 10px;
+                height: 10px;
+                background: #95d033;
+                display: inline-block;
+                border-radius: 6px;
+                position: relative;
+                margin-right: 10px;
+            }
+        }
+        .ox-modules-expired,
+        .ox-module-expired{
+            &:before{
+                background: #e35000;
+            }
+        }
+        .ox-modules-expired{
+            a{
+                margin-left: 0;
+            }
+        }
+        &.expired{
+            .ox-module-version,
+            .ox-theme-version{
+                &:before{
+                    background: #e35000;
+                }
+            }
+            .ox-server-version{
+                font-weight: 700;
+                color:#e35000;
+                margin-left: 10px;
+            }
+        }
+    }
+}
+
+   @media (min-width: 1380px){
+        .ox-info-block{
+            .ox-info-block__right{
+                width:auto;
+                margin-left: auto;
+                margin-top: 0;
+            }
+       }
+   }

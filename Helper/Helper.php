@@ -12,6 +12,9 @@ use Magento\Catalog\Helper\Product\Compare;
 use Magento\Cms\Model\Template\FilterProvider;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Area;
+use Magento\Framework\App\Cache\Frontend\Pool;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
@@ -60,7 +63,14 @@ class Helper extends AbstractHelper
 
     public function setSystemValue($path, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
     {
-        return $this->_loadObject(WriterInterface::class)->save($path, $value, $scope, $scopeId);
+        $result = $this->_loadObject(WriterInterface::class)->save($path, $value, $scope, $scopeId);
+        $this->_loadObject(ReinitableConfigInterface::class)->reinit();
+        return $result;
+    }
+
+    public function deleteSystemValue($path, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
+    {
+        return $this->_loadObject(WriterInterface::class)->delete($path, $scope, $scopeId);
     }
 
     /**
@@ -74,7 +84,9 @@ class Helper extends AbstractHelper
 
     public function getModuleConfig($path = '', $storeCode = null)
     {
-        if (!empty($path)) {
+        if (empty($path)) {
+            $path = static::CONFIG_MODULE;
+        } else {
             $path = static::CONFIG_MODULE . '/' . $path;
         }
         return $this->getSystemValue($path, $storeCode);
@@ -84,8 +96,17 @@ class Helper extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             $path,
-            !empty($storeCode) ? ScopeInterface::SCOPE_STORE : ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            ScopeInterface::SCOPE_STORE,
             $storeCode
+        );
+    }
+
+    public function getSystemDefaultValue($path)
+    {
+        return $this->scopeConfig->getValue(
+            $path,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            0
         );
     }
 
@@ -129,7 +150,7 @@ class Helper extends AbstractHelper
 
     public function getLayoutTemplateHtml($block, $option_path = '', $fileName = '', $arguments = [])
     {
-        $value = $this->getConfig($option_path);
+        $value = $this->getSystemValue($option_path);
 
         if (is_string($value) || is_numeric($value)) {
             return $this->getLayoutTemplateHtmlbyValue($block, $value, $fileName, $arguments);
@@ -157,6 +178,12 @@ class Helper extends AbstractHelper
             } else {
                 $fileName .= '%s%s';
             }
+            if (!preg_match('#([^_\:])_([^_\:])\:\:#i', $fileName)) {
+                $className = array_slice(array_filter(explode('\\', get_class($block))), 0, 2);
+                if ('Magento' !== $className[0]) {
+                    $fileName = implode('_', $className) . '::' . $fileName;
+                }
+            }
         } else {
             $_fileName = $fileName;
         }
@@ -168,39 +195,9 @@ class Helper extends AbstractHelper
         $_block = $block->getLayout()->createBlock(static::CHILD_TEMPLATE, $blockName);
         $block->setChild($_block->getNameInLayout(), $_block);
         if (!empty($arguments) && is_array($arguments)) {
-            foreach ($arguments as $key => $value) {
-                $_block->addData($key, $value);
-            }
+            $_block->addData($arguments);
         }
         $content = $_block->setTemplate($fileName)->toHtml();
-
-        return $content;
-    }
-
-    public function getLayoutBlockHtml($block, $option_path = '', $blockName = null)
-    {
-        $value = $this->getConfig($option_path);
-
-        if (is_string($value) || is_numeric($value)) {
-            return $this->getBlockValueHtmlby($block, $value, $blockName);
-        }
-        return '';
-    }
-
-    public function getLayoutBlockHtmlbyValue($block, $value = null, $blockName = null, $separator = '/')
-    {
-        if (empty($blockName)) {
-            $blockName = $block->getNameInLayout();
-        }
-        $blockName = $blockName . $separator . $value;
-        $_block = $block->getLayout()->getBlock($blockName);
-        $content = '';
-        if ($_block) {
-            $block->setChild($blockName, $_block);
-            $content = $_block->toHtml();
-
-            return $content;
-        }
 
         return $content;
     }
@@ -239,15 +236,42 @@ class Helper extends AbstractHelper
 
     public function isMobile()
     {
-        $user_agent = filter_input(INPUT_SERVER, HTTP_USER_AGENT);
-        $result = false;
-        if (!empty($user_agent)) {
-            $result = preg_match(
-                "/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i",
-                $user_agent);
-        }
+		$regex_match = "/(nokia|iphone|android|motorola|^mot\-|softbank|foma|docomo|kddi|up\.browser|up\.link|"  
+					 . "htc|dopod|blazer|netfront|helio|hosin|huawei|novarra|CoolPad|webos|techfaith|palmsource|"  
+					 . "blackberry|alcatel|amoi|ktouch|nexian|samsung|^sam\-|s[cg]h|^lge|ericsson|philips|sagem|wellcom|bunjalloo|maui|"  
+					 . "symbian|smartphone|mmp|midp|wap|phone|windows ce|iemobile|^spice|^bird|^zte\-|longcos|pantech|gionee|^sie\-|portalmmm|"  
+					 . "jig\s browser|hiptop|^ucweb|^benq|haier|^lct|opera\s*mobi|opera\*mini|320x320|240x320|176x220"  
+					 . ")/i";  
 
-        return $result;
+		if (preg_match($regex_match, strtolower($_SERVER['HTTP_USER_AGENT']))) {  
+			return TRUE;  
+		}  
+
+		if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/vnd.wap.xhtml+xml') > 0) or ((isset($_SERVER['HTTP_X_WAP_PROFILE']) or isset($_SERVER['HTTP_PROFILE'])))) {  
+			return TRUE;  
+		}      
+
+		$mobile_ua = strtolower(substr($_SERVER['HTTP_USER_AGENT'], 0, 4));  
+		$mobile_agents = array(  
+			'w3c ','acs-','alav','alca','amoi','audi','avan','benq','bird','blac',  
+			'blaz','brew','cell','cldc','cmd-','dang','doco','eric','hipt','inno',  
+			'ipaq','java','jigs','kddi','keji','leno','lg-c','lg-d','lg-g','lge-',  
+			'maui','maxo','midp','mits','mmef','mobi','mot-','moto','mwbp','nec-',  
+			'newt','noki','oper','palm','pana','pant','phil','play','port','prox',  
+			'qwap','sage','sams','sany','sch-','sec-','send','seri','sgh-','shar',  
+			'sie-','siem','smal','smar','sony','sph-','symb','t-mo','teli','tim-',  
+			'tosh','tsm-','upg1','upsi','vk-v','voda','wap-','wapa','wapi','wapp',  
+			'wapr','webc','winw','winw','xda ','xda-');  
+
+		if (in_array($mobile_ua,$mobile_agents)) {  
+			return TRUE;  
+		}  
+
+		if (isset($_SERVER['ALL_HTTP']) && strpos(strtolower($_SERVER['ALL_HTTP']),'OperaMini') > 0) {  
+			return TRUE;  
+		}  
+
+		return FALSE;  
     }
 
     public function getBlockTemplateProcessor($content = '')
@@ -268,6 +292,35 @@ class Helper extends AbstractHelper
         $currentUrl = $this->getUrl('', ['_current' => true]);
         $urlRewrite = $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
         return $currentUrl == $urlRewrite;
+    }
+
+
+    public function clearCache()
+    {
+        /** @var TypeListInterface $cacheTypeList */
+        $cacheTypeList = $this->_loadObject(TypeListInterface::class);
+        $types = [
+            'config',
+            'layout',
+            'block_html',
+            'collections',
+            'reflection',
+            'db_ddl',
+            'eav',
+            'config_integration',
+            'config_integration_api',
+            'full_page',
+            'translate',
+            'config_webservice',
+        ];
+        foreach ($types as $type) {
+            $cacheTypeList->cleanType($type);
+        }
+        /** @var Pool $CacheFrontendPool */
+        $CacheFrontendPool = $this->_loadObject(Pool::class);
+        foreach ($CacheFrontendPool as $cacheFrontend) {
+            $cacheFrontend->getBackend()->clean();
+        }
     }
 
 }

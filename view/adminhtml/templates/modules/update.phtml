@@ -9,85 +9,118 @@
 use Olegnax\Core\Block\Adminhtml\Modules\Update;
 
 /** @var $block Update */
+$block->ForsedUpdate();
 $modules = $block->getModuleVersions();
 $themes = $block->getThemeVersions();
 ?>
-<div class="admin__page-section-item">
-	<div class="admin__page-section-item-content">
-		<table class="admin__table-secondary">
-			<thead>
-			<tr>
-				<th><?php echo $block->escapeHtml(__('Name')); ?></th>
-				<th><?php echo $block->escapeHtml(__('Enabled')); ?></th>
-				<th><?php echo $block->escapeHtml(__('Current Version')); ?></th>
-				<th><?php echo $block->escapeHtml(__('Latest Version')); ?></th>
-				<th><?php echo $block->escapeHtml(__('Extension Link')); ?></th>
-				<th></th>
-			</tr>
-			</thead>
-			<tbody>
-            <?php foreach ($modules as $module) : ?>
-				<tr>
-					<td>
-						<span class="module-title"><?php echo $module['name'] ?></span>
-                        <?php if ($module['theme_module']) : ?>
-							<span class="module-theme-info">(<?php echo __('Theme module'); ?>)</span>
-                        <?php endif; ?>
-					</td>
-					<td><?php echo ($module['enabled']) ? __('Yes') : __('No') ?></td>
-					<td><?php echo $module['setup_version'] ?></td>
-					<td><?php echo $module['server_version'] ?></td>
-					<td>
-                        <?php if (array_key_exists('url', $module)): ?>
-							<a target="_blank" href="<?php echo $module['url'] ?>"><?php echo __('Visit page'); ?></a>
-                        <?php endif; ?>
-					</td>
-					<td>
-						<span class="rewrite-status rewrite-status-<?php echo ($module['update_status']) ? 'nok' : 'ok'; ?>"><?php echo ($module['update_status']) ? __('Update needed') : __('Up to Date'); ?></span>
-					</td>
-				</tr>
-            <?php endforeach; ?>
-			</tbody>
-		</table>
+<div class="admin__page-section-item ox-admin__modules">
+	<div class="admin__page-section-item-content ox-admin__row">
+		<?php foreach ($modules as $module) : ?>
+		<?php if (is_array($module)): ?>
+		<div class="ox-admin__module us-<?php echo ($module['update_status']) ? 'nok' : 'ok'; ?>">
+			<div class="ox-admin__module-wrapper">
+				<?php if (array_key_exists('image', $module) && !empty($module['image'])): ?>
+					<div class="ox-admin__module-image">
+						<img src="<?php echo $module['image'] ?>" />
+					</div>
+				<?php endif; ?>
+				<div class="ox-admin__status-wrapper">
+					<span class="ox-module-status ox-module-status-<?php echo ($module['update_status']) ? 'nok' : 'ok'; ?>"><?php echo ($module['update_status']) ? __('Update Required') : __('Up to Date'); ?></span>
+					<?php if (array_key_exists('pro', $module)): ?>
+						<a target="_blank" class="ox-pro-version" href="<?php echo $module['pro'] ?>"><?php echo __('Get Pro'); ?></a>
+					<?php endif; ?>
+				</div>
+				<div class="ox-admin__module-title-wrapper">
+					<a target="_blank" href="<?= array_key_exists('url', $module) ?: '#'; ?>">
+						<span class="ox-module-title"><?php if (array_key_exists('title', $module)): echo $module['title']; else:  echo $module['name']; endif; ?>
+						<?php if ($module['theme_module']) : ?>
+							<span class="ox-module-theme-info"><?php echo __('Theme module'); ?></span>
+						<?php endif; ?>
+						</span>
+					</a>
+				</div>
+				<div class="ox-admin__module-info">
+					<table>
+						<tr>
+							<td><?php echo $block->escapeHtml(__('Installed Version')); ?></td>
+							<td><?php echo $module['setup_version'] ?></td>
+						</tr>
+						<tr>
+							<td><?php echo $block->escapeHtml(__('Latest Version')); ?></td>
+							<td><span class="ox-server-version"><?php echo $module['server_version'] ?></span></td>
+						</tr>	
+						<tr>
+							<td><?php echo $block->escapeHtml(__('Status')); ?></td>
+							<td><?php echo ($module['enabled']) ? __('Enabled') : __('Disabled') ?></td>
+						</tr>
+						<tr>
+							<td colspan="2"><span class="ox-module-full-name"><?php echo $module['name'] ?></span></td>
+						</tr>
+					</table>
+				</div>
+				<div class="ox-admin__modules-bottom">
+                        <?php if (array_key_exists('docs', $module)): ?>
+							<a target="_blank" href="<?php echo $module['docs'] ?>"><span class="icon-docs"></span><?php echo __('Docs'); ?></a>
+						<?php endif; ?>		
+						<?php if (array_key_exists('url_changelog', $module)): ?>
+							<a target="_blank" class="changelog-link" href="<?php echo $module['url_changelog'] ?>"><?php echo __('Changelog'); ?></a>
+						<?php endif; ?>
+			
+				</div>
+			</div>
+		</div>
+		<?php endif; ?>
+		<?php endforeach; ?>
 	</div>
 </div>
 <?php if (count($themes)) : ?>
-	<hr/><br/>
-	<div class="admin__page-section-item">
+	<div class="admin__page-section-item ox-admin__modules">
 		<div class="admin__page-section-item-title">
 			<h1 class="page-title"><?php echo $block->escapeHtml(__('Themes')); ?></h1>
 		</div>
-		<div class="admin__page-section-item-content">
-			<table class="admin__table-secondary">
-				<thead>
-				<tr>
-					<th><?php echo $block->escapeHtml(__('Name')); ?></th>
-					<th><?php echo $block->escapeHtml(__('Current Version')); ?></th>
-					<th><?php echo $block->escapeHtml(__('Latest Version')); ?></th>
-					<th><?php echo $block->escapeHtml(__('Theme Link')); ?></th>
-					<th></th>
-				</tr>
-				</thead>
-				<tbody>
-                <?php foreach ($themes as $theme) : ?>
-					<tr>
-						<td><span class="module-title"><?php echo $theme['name'] ?></span></td>
-						<td><?php echo $theme['setup_version'] ?></td>
-						<td><?php echo $theme['server_version'] ?></td>
-						<td>
-                            <?php if (array_key_exists('url', $theme)): ?>
-								<a target="_blank"
-								   href="<?php echo $theme['url'] ?>"><?php echo __('Visit page'); ?></a>
-                            <?php endif; ?>
-						</td>
-						<td>
-							<span class="rewrite-status rewrite-status-<?php echo ($theme['update_status']) ? 'nok' : 'ok'; ?>"><?php echo ($theme['update_status']) ? __('Update needed') : __('Up to Date'); ?></span>
-						</td>
-
-					</tr>
-                <?php endforeach; ?>
-				</tbody>
-			</table>
+		<div class="admin__page-section-item-content ox-admin__row">
+			<?php foreach ($themes as $theme) : ?>
+			<div class="ox-admin__theme us-<?php echo ($theme['update_status']) ? 'nok' : 'ok'; ?>">
+				<div class="ox-admin__theme-wrapper">
+					<div class="ox-admin__theme-image">
+						<?php if (array_key_exists('image', $theme) && !empty($theme['image'])): ?>						
+							<img src="<?php echo $theme['image'] ?>"/>
+						<?php endif; ?>
+					</div>
+					<div class="ox-admin__theme-content">
+						<div class="ox-admin__status-wrapper">
+							<span class="ox-module-status ox-module-status-<?php echo ($theme['update_status']) ? 'nok' : 'ok'; ?>"><?php echo ($theme['update_status']) ? __('Update Required') : __('Up to Date'); ?></span>
+						</div>
+						<div class="ox-admin__module-title-wrapper">
+							<a target="_blank" href="<?= array_key_exists('url', $theme) ?: '#'; ?>">
+								<span class="ox-module-title"><?php if (array_key_exists('title', $theme)): echo $theme['title']; else:  echo $theme['name']; endif; ?></span>
+							</a>
+						</div>
+						<div class="ox-admin__module-info">
+							<table>
+								<tr>
+									<td><?php echo $block->escapeHtml(__('Installed Version')); ?></td>
+									<td><?php echo $theme['setup_version'] ?></td>
+								</tr>
+								<tr>
+									<td><?php echo $block->escapeHtml(__('Latest Version')); ?></td>
+									<td><span class="ox-server-version"><?php echo $theme['server_version'] ?></span></td>
+								</tr>	
+							</table>
+						</div>
+						<div class="ox-admin__modules-bottom">
+								<span class="icon-docs"></span>
+								<?php if (array_key_exists('docs', $theme)): ?>
+									<a target="_blank" href="<?php echo $theme['docs'] ?>"><?php echo __('Docs'); ?></a>
+								<?php endif; ?>			
+								<?php if (array_key_exists('url_changelog', $theme)): ?>
+									<a target="_blank" class="changelog-link" href="<?php echo $theme['url_changelog'] ?>"><?php echo __('Changelog'); ?></a>
+								<?php endif; ?>		
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php endforeach; ?>
 		</div>
 	</div>
 <?php endif; ?>
