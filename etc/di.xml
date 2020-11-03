@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!--
+  ~ @author      Olegnax
+  ~ @package     Olegnax_Core
+  ~ @copyright   Copyright (c) 2020 Olegnax (http://olegnax.com/). All rights reserved.
+  ~ See COPYING.txt for license details.
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+	<type name="Magento\Framework\View\TemplateEngine\Php">
+		<plugin disabled="false" name="Olegnax_Core_Plugin_Magento_Framework_View_TemplateEngine_Php" sortOrder="10" type="Olegnax\Core\Plugin\Magento\Framework\View\TemplateEngine\Php"/>
+	</type>
+</config>

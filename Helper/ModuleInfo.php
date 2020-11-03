@@ -292,6 +292,7 @@ class ModuleInfo extends Helper
             'path' => $themePath,
             'setup_version' => $this->getComposerVersion($themePath, ComponentRegistrar::THEME),
         ];
+	    $theme['established'] = !empty($theme['setup_version']);
         $name = $this->getThemeName($themePath);
         if (!empty($name)) {
             $theme['name'] = $name;

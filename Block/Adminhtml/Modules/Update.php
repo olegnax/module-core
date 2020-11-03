@@ -84,10 +84,10 @@ class Update extends Template
         ];
         $_themes = [];
         foreach ($themes as $themeName => $path) {
-            $theme = $this->helper->getThemeInfo($path, $themeName);
-            if (empty($theme)) {
-                continue;
-            }
+            $theme = $this->helper->getThemeInfo($path, $themeName, false);
+	        if (empty($theme)) {
+		        continue;
+	        }
             $_themes[$themeName] = $theme;
         }
 

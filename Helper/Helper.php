@@ -64,13 +64,15 @@ class Helper extends AbstractHelper
     public function setSystemValue($path, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
     {
         $result = $this->_loadObject(WriterInterface::class)->save($path, $value, $scope, $scopeId);
-        $this->_loadObject(ReinitableConfigInterface::class)->reinit();
+        $this->scopeConfig->clean();
         return $result;
     }
 
     public function deleteSystemValue($path, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
     {
-        return $this->_loadObject(WriterInterface::class)->delete($path, $scope, $scopeId);
+        $result = $this->_loadObject(WriterInterface::class)->delete($path, $scope, $scopeId);
+        $this->scopeConfig->clean();
+        return $result;
     }
 
     /**
@@ -130,7 +132,7 @@ class Helper extends AbstractHelper
 
             try {
                 $this->isArea[$area] = ($state->getAreaCode() == $area);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->isArea[$area] = false;
             }
         }

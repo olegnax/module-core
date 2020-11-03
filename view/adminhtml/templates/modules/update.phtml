@@ -73,7 +73,7 @@ $themes = $block->getThemeVersions();
 		<?php endforeach; ?>
 	</div>
 </div>
-<?php if (count($themes)) : ?>
+
 	<div class="admin__page-section-item ox-admin__modules">
 		<div class="admin__page-section-item-title">
 			<h1 class="page-title"><?php echo $block->escapeHtml(__('Themes')); ?></h1>
@@ -89,25 +89,37 @@ $themes = $block->getThemeVersions();
 					</div>
 					<div class="ox-admin__theme-content">
 						<div class="ox-admin__status-wrapper">
+							<?php if($theme['established']) : ?>
 							<span class="ox-module-status ox-module-status-<?php echo ($theme['update_status']) ? 'nok' : 'ok'; ?>"><?php echo ($theme['update_status']) ? __('Update Required') : __('Up to Date'); ?></span>
+							<?php else: ?>
+							<span class="ox-module-status ox-module-status-none"><?php echo __('Not Installed'); ?></span>
+							<?php endif; ?>
 						</div>
 						<div class="ox-admin__module-title-wrapper">
 							<a target="_blank" href="<?= array_key_exists('url', $theme) ?: '#'; ?>">
-								<span class="ox-module-title"><?php if (array_key_exists('title', $theme)): echo $theme['title']; else:  echo $theme['name']; endif; ?></span>
+								<span class="ox-module-title"><?php if (array_key_exists('title', $theme)): echo $theme['title']; else:  echo $theme['name']; endif; echo __(' Theme'); ?></span>
 							</a>
 						</div>
-						<div class="ox-admin__module-info">
-							<table>
-								<tr>
-									<td><?php echo $block->escapeHtml(__('Installed Version')); ?></td>
-									<td><?php echo $theme['setup_version'] ?></td>
-								</tr>
-								<tr>
-									<td><?php echo $block->escapeHtml(__('Latest Version')); ?></td>
-									<td><span class="ox-server-version"><?php echo $theme['server_version'] ?></span></td>
-								</tr>	
-							</table>
+						
+						<div class="ox-admin__module-info">						
+								<table>
+									<?php if ($theme['established']) : ?>
+									<tr>
+										<td><?php echo $block->escapeHtml(__('Installed Version')); ?></td>
+										<td><?php echo $theme['setup_version'] ?></td>
+									</tr>
+									<?php endif; ?>
+									<tr>
+										<td><?php echo $block->escapeHtml(__('Latest Version')); ?></td>
+										<td><span class="ox-server-version"><?php echo $theme['server_version'] ?></span></td>
+									</tr>	
+								</table>							
 						</div>
+						<?php if (!$theme['established']) : ?>
+						<div class="ox-admin__module-actions">		
+							<a href="https://themeforest.net/item/athlete2-strong-magento-2-theme/23693737" target="_blank" class="ox-button -green">Download</a><a href="https://athlete2.com/landing/" target="_blank" class="ox-underlined -black">Preview</a>
+						</div>
+						<?php endif; ?>
 						<div class="ox-admin__modules-bottom">
 								<span class="icon-docs"></span>
 								<?php if (array_key_exists('docs', $theme)): ?>
@@ -123,4 +135,3 @@ $themes = $block->getThemeVersions();
 			<?php endforeach; ?>
 		</div>
 	</div>
-<?php endif; ?>

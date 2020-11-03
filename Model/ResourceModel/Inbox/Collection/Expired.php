@@ -15,8 +15,8 @@ class Expired extends OX
     {
         return parent::_initSelect()
             ->addFieldToFilter('is_remove', 0)
-            ->addFieldToFilter('date_expire', ['neq' => 'NULL'])
-            ->addFieldToFilter('date_expire', ['lt' => 'NOW()']);
+
+            ->addFieldToFilter('date_expire', ['lt' => date('Y-m-d H:i:s')]);
     }
 
 }
