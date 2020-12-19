@@ -20,6 +20,7 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -213,6 +214,34 @@ class Helper extends AbstractHelper
     {
         return $this->_loadObject(Data::class)->getItemCount();
     }
+
+    /**
+     * Get Product version
+     *
+     * @return string
+     */
+    function getVersion()
+    {
+        return $this->_loadObject(ProductMetadataInterface::class)->getVersion();
+    }
+
+    /**
+     * @param string $version
+     * @param string $operator
+     * @return bool
+     */
+    function getVersionCompare($version, $operator = '<=')
+    {
+        return version_compare($this->getVersion(), $version, $operator);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLegacyJQuery() {
+        return $this->getVersionCompare('2.3.2');
+    }
+
 
     public function getCompareListUrl()
     {
