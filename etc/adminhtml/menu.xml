@@ -4,8 +4,9 @@
 	<menu>
 		<add id="Olegnax_Core::Olegnax_Core" title="Olegnax" module="Olegnax_Core" sortOrder="10"
 			 resource="Olegnax_Core::Olegnax_Core"/>
-		<add id="Olegnax_Core::Modules_Update" action="olegnax/modules/update" module="Olegnax_Core"
+                <add id="Olegnax_Core::Modules_Update" action="olegnax/modules/update" module="Olegnax_Core"
 			 parent="Olegnax_Core::Olegnax_Core" resource="Olegnax_Core::Modules_Update" sortOrder="0"
 			 title="Modules Info"/>
+                <add id="Olegnax_Core::Core_Settings" title="Core Settings" module="Olegnax_Core" sortOrder="10" action="adminhtml/system_config/edit/section/olegnax_core_settings" parent="Olegnax_Core::Olegnax_Core" resource="Olegnax_Core::core_settings"/>
 	</menu>
 </config>

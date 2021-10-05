@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+	<update handle="old_editor"/>
 	<head>
 		<css src="Olegnax_Core::onoff-trigger/on-off.css"/>
 		<link src="Olegnax_Core::onoff-trigger/on-off.js"/>

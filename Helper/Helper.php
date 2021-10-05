@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2019 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -14,7 +14,6 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Cache\Frontend\Pool;
 use Magento\Framework\App\Cache\TypeListInterface;
-use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
@@ -23,6 +22,7 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\View\DesignInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Wishlist\Helper\Data;
@@ -31,7 +31,9 @@ use Olegnax\Core\Block\ChildTemplate;
 class Helper extends AbstractHelper
 {
 
-    const CONFIG_MODULE = 'ox_core';
+
+    const XML_PATH_CORE_LAZY = 'olegnax_core_settings/general/lazyload';
+    const CONFIG_MODULE = 'olegnax_core_settings';
     const CHILD_TEMPLATE = ChildTemplate::class;
 
     /**
@@ -48,6 +50,22 @@ class Helper extends AbstractHelper
         $this->objectManager = ObjectManager::getInstance();
 
         parent::__construct($context);
+        if (!$this->getModuleConfig(
+                'general/install_date',
+                0,
+                ScopeConfigInterface::SCOPE_TYPE_DEFAULT
+            )
+        ) {
+            $this->setModuleConfig('general/install_date', time());
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return true;
     }
 
     public function setModuleConfig(
@@ -85,31 +103,70 @@ class Helper extends AbstractHelper
         return $this->objectManager->get($path);
     }
 
-    public function getModuleConfig($path = '', $storeCode = null)
+    /**
+     * @return string
+     */
+    public function getThemeCode()
+    {
+        /** @var DesignInterface $appState */
+        $appState = $this->_loadObject(DesignInterface::class);
+        return $appState->getDesignTheme()->getCode();
+    }
+    /**
+     * @return bool
+     */
+    public function isMobileTheme()
+    {
+		return (bool) preg_match('@^Olegnax\/a2m@', $this->getThemeCode());
+    }
+    /**
+     * @return bool
+     */
+    public function isLazyLoadEnabled(){
+        return (bool) $this->getSystemValue(static::XML_PATH_CORE_LAZY);
+    }
+
+    /**
+     * @param string $path
+     * @param integer $storeCode
+     * @param string $scopeType
+     * @return mixed
+     */
+    public function getModuleConfig($path = '', $storeCode = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         if (empty($path)) {
             $path = static::CONFIG_MODULE;
         } else {
             $path = static::CONFIG_MODULE . '/' . $path;
         }
-        return $this->getSystemValue($path, $storeCode);
+        return $this->getSystemValue($path, $storeCode, $scopeType);
     }
 
-    public function getSystemValue($path, $storeCode = null)
+    /**
+     * @param string $path
+     * @param integer $storeCode
+     * @param string $scopeType
+     * @return mixed
+     */
+    public function getSystemValue($path, $storeCode = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return $this->scopeConfig->getValue(
             $path,
-            ScopeInterface::SCOPE_STORE,
+            $scopeType,
             $storeCode
         );
     }
 
+    /**
+     * @param string $path
+     * @return mixed
+     */
     public function getSystemDefaultValue($path)
     {
-        return $this->scopeConfig->getValue(
+        return $this->getSystemValue(
             $path,
-            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            0
+            0,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
         );
     }
 
@@ -161,6 +218,11 @@ class Helper extends AbstractHelper
         return '';
     }
 
+    /**
+     * @param string $path
+     * @param integer $storeCode
+     * @return mixed
+     */
     public function getConfig($path, $storeCode = null)
     {
         return $this->getSystemValue($path, $storeCode);

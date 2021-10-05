@@ -14,13 +14,42 @@
  *
  * @category    Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2010-2019 Olegnax (http://olegnax.com/)
+ * @copyright   Copyright (c) 2010-2021 Olegnax (http://olegnax.com/)
  * @license     https://olegnax.com/license
  */
 
 @import '_icons.less';
 @import '_info-block.less';
-
+.ox-pro-badge(){
+    text-decoration: none;
+    background: #d878dd;
+    color: #fff;
+    display: inline-block;
+    padding: 6px 15px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: 0 9px 16px -6px rgb(216, 120, 221);
+    border: none;
+    &:before{
+        content:'';
+        display:inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 6px;
+        background-image: url(data:image/svg+xml;base64,PHN2ZyBpZD0iQm9sZCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMjQgMjQiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Im01LjU3NCAxNS4zNjItMS4yNjcgNy43NjdjLS4xMDEuNjE3LjU1OCAxLjA4IDEuMTAzLjc3N2w2LjU5LTMuNjQyIDYuNTkgMy42NDNjLjU0LjMgMS4yMDUtLjE1NCAxLjEwMy0uNzc3bC0xLjI2Ny03Ljc2NyA1LjM2LTUuNDk0Yy40MjUtLjQzNS4xODEtMS4xNzMtLjQyMy0xLjI2NWwtNy4zNzgtMS4xMjctMy4zMDctNy4wNDRjLS4yNDctLjUyNi0xLjExLS41MjYtMS4zNTcgMGwtMy4zMDYgNy4wNDMtNy4zNzggMS4xMjdjLS42MDYuMDkzLS44NDguODMtLjQyMyAxLjI2NXoiLz48L3N2Zz4=);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 10px 10px;
+    }
+    &:hover{
+        color: #fff;
+    }
+}
+.ox-info-block .ox-pro-version{
+    .ox-pro-badge();
+}
 .ox-button,
 a.ox-button{
     display: inline-block;
@@ -262,28 +291,8 @@ a.ox-underlined{
     .ox-admin__status-wrapper{
         margin-bottom:8px;
         .ox-pro-version{
-            text-decoration: none;
-            background: #d878dd;
-            color: #fff;
-            display: inline-block;
-            padding: 6px 15px;
-            border-radius: 14px;
-            font-size: 12px;
-            font-weight: 600;
-            line-height: 1;
+            .ox-pro-badge();
             margin-bottom: 8px;
-            box-shadow: 0 9px 16px -6px rgb(216, 120, 221);
-            &:before{
-                content:'';
-                display:inline-block;
-                width: 10px;
-                height: 10px;
-                margin-right: 6px;
-                background-image: url(data:image/svg+xml;base64,PHN2ZyBpZD0iQm9sZCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMjQgMjQiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Im01LjU3NCAxNS4zNjItMS4yNjcgNy43NjdjLS4xMDEuNjE3LjU1OCAxLjA4IDEuMTAzLjc3N2w2LjU5LTMuNjQyIDYuNTkgMy42NDNjLjU0LjMgMS4yMDUtLjE1NCAxLjEwMy0uNzc3bC0xLjI2Ny03Ljc2NyA1LjM2LTUuNDk0Yy40MjUtLjQzNS4xODEtMS4xNzMtLjQyMy0xLjI2NWwtNy4zNzgtMS4xMjctMy4zMDctNy4wNDRjLS4yNDctLjUyNi0xLjExLS41MjYtMS4zNTcgMGwtMy4zMDYgNy4wNDMtNy4zNzggMS4xMjdjLS42MDYuMDkzLS44NDguODMtLjQyMyAxLjI2NXoiLz48L3N2Zz4=);
-                background-position: center;
-                background-repeat: no-repeat;
-                background-size: 10px 10px;
-            }
         }
     }
     .ox-admin__module-title-wrapper{

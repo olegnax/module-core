@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2019 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -83,6 +83,7 @@ class ProductImage extends AbstractHelper
             'data' => [
                 'template' => $template,
                 'product_id' => $product->getId(),
+                'product' => $product,
                 'image_id' => $imageId,
                 'image_hover_id' => $imageId_hover,
                 'image_url' => $image,
@@ -92,7 +93,8 @@ class ProductImage extends AbstractHelper
                 'width' => $imageMiscParams['image_width'],
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
-                'custom_attributes' => $this->getStringCustomAttributes($attributes),
+                'class' => $this->getClass($attributes),
+                'custom_attributes' => $attributes,
             ],
         ];
 
@@ -155,13 +157,15 @@ class ProductImage extends AbstractHelper
             'data' => [
                 'template' => $template,
                 'product_id' => $product->getId(),
+                'product' => $product,
                 'image_id' => $imageId,
                 'image_url' => $image->getUrl(),
                 'label' => $this->getLabel($product, $imageMiscParams['image_type']),
                 'width' => $imageMiscParams['image_width'],
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
-                'custom_attributes' => $this->getStringCustomAttributes($attributes),
+                'class' => $this->getClass($attributes),
+                'custom_attributes' => $attributes,
             ],
         ];
 
@@ -204,21 +208,6 @@ class ProductImage extends AbstractHelper
             return $height / $width;
         }
         return 1.0;
-    }
-
-    /**
-     * Retrieve image custom attributes for HTML element
-     *
-     * @param array $attributes
-     * @return string
-     */
-    private function getStringCustomAttributes(array $attributes): string
-    {
-        $result = [];
-        foreach ($attributes as $name => $value) {
-            $result[] = $name . '="' . $value . '"';
-        }
-        return !empty($result) ? implode(' ', $result) : '';
     }
 
     private function _createTemplate($data = [])
@@ -297,6 +286,7 @@ class ProductImage extends AbstractHelper
             'data' => [
                 'template' => $template[0],
                 'product_id' => $product->getId(),
+                'product' => $product,
                 'image_id' => $imageId,
                 'image_hover_id' => $imageId_hover,
                 'image_url' => $image,
@@ -306,7 +296,8 @@ class ProductImage extends AbstractHelper
                 'width' => $imageMiscParams['image_width'],
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
-                'custom_attributes' => $this->getStringCustomAttributes($attributes),
+                'class' => $this->getClass($attributes),
+                'custom_attributes' => $attributes,
             ],
         ];
 
@@ -340,17 +331,30 @@ class ProductImage extends AbstractHelper
             'data' => [
                 'template' => $template,
                 'product_id' => $product->getId(),
+                'product' => $product,
                 'image_id' => $imageId,
                 'image_url' => $image->getUrl(),
                 'label' => $this->getLabel($product, $imageMiscParams['image_type']),
                 'width' => $imageMiscParams['image_width'],
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
-                'custom_attributes' => $this->getStringCustomAttributes($attributes),
+                'class' => $this->getClass($attributes),
+                'custom_attributes' => $attributes,
             ],
         ];
 
         return $this->_createTemplate($data);
+    }
+
+    /**
+     * Retrieve image class for HTML element
+     *
+     * @param array $attributes
+     * @return string
+     */
+    private function getClass(array $attributes): string
+    {
+        return $attributes['class'] ?? 'product-image-photo';
     }
 
     public function getUrlResizedImage(Product $product, $image, $size, $properties = [])

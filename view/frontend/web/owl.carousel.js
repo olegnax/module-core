@@ -57,19 +57,69 @@ define([
             stageClass: 'owl-stage',
             stageOuterClass: 'owl-stage-outer',
             grabClass: 'owl-grab',
-            callbacks: true
+            wrapperSelectorClass: '.block.widget',
+
+            callbacks: true,
+            observerLoad: !(window.hasOwnProperty('OX_OWL_OBS_DISABLE') ? OX_OWL_OBS_DISABLE : false)
         },
 
         _create: function () {
             this.options.onInitialized = this.owlchanged;
             this.options.onChanged = this.owlchanged;
             this.options.onRefreshed = this.owlchanged;
+            if (this.options.observerLoad) {
+                this._loadObserver();
+            } else {
+                this._loadOwl();
+            }
+        },
+        _loadObserver: function () {
+            let _self = this;
+            if (window.IntersectionObserver) {
+                let observer = new IntersectionObserver(function (entries, observer) {
+                    Array.prototype.forEach.call(entries, function (entry) {
+                        if (entry.isIntersecting) {
+                            _self._loadOwl.call(_self);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    root: null,
+                    rootMargin: "0px",
+                    threshold: [0]
+                });
+                this.element.each(function (i, el) {
+                    observer.observe(el);
+                });
+            } else {
+                let debouncer = function (func) {
+                    var timeoutID;
+                    return function () {
+                        var scope = this,
+                            args = arguments;
+                        clearTimeout(timeoutID);
+                        timeoutID = setTimeout(function () {
+                            func.apply(scope, Array.prototype.slice.call(args));
+                        }, 200);
+                    }
+                };
+                $(window).one('scroll resize', debouncer(function () {
+                    let height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                    this.element.each(function (i, el) {
+                        let bounding = el.getBoundingClientRect();
+                        if (bounding.top != bounding.bottom && 0 < bounding.bottom && height > bounding.top) {
+                            _self._loadOwl.call(_self);
+                        }
+                    })
+                }));
+            }
+        },
+        _loadOwl: function () {
             this.element.owlCarousel(this.options);
             this.arrows();
-            //this.owlchanged();
         },
         owlchanged: function (event) {
-            var $wraper = this.$element.closest('.block.widget').eq(0);
+            var $wraper = this.$element.closest(this.options.wrapperSelectorClass).eq(0);
             var current = this.current();
             $wraper.find('.ox-owl-nav').toggle(this.settings.items < this.items().length);
             var disable_nav_min = current === this.minimum();
@@ -81,7 +131,7 @@ define([
             $wraper.find('.ox-owl-prev').toggleClass('disabled', disable_nav_min);
         },
         arrows: function () {
-            var $wraper = this.element.closest('.block.widget').eq(0);
+            var $wraper = this.element.closest(this.options.wrapperSelectorClass).eq(0);
             $wraper.on('click', '.ox-owl-next', $.proxy(function () {
                 this.element.trigger('next.owl.carousel');
             }, this));

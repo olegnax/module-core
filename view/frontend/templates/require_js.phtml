@@ -1,0 +1,22 @@
+<?php
+/**
+ * @author      Olegnax
+ * @package     Olegnax_Core
+ * @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/). All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+use Magento\Framework\View\Element\Template;
+use Olegnax\Core\Helper\Helper;
+/** @var Template $block */
+/** @var Helper $helper */
+$helper = $block->getData('helper');
+$mobile = $helper->isMobileTheme();
+?>
+<script>
+    var OX_MOBILE = <?= $mobile ? 1 : 0 ?>,
+        OX_PHOTOSWIPE = 1,
+        OX_WAYPOINTS = <?= $helper->getSystemValue('athlete2_settings/general/waypoints') ? 1 : 0 ?>,
+        OX_OWL_DISABLE = <?= !$helper->getModuleConfig('general/owlcarousel') ? 1 : 0 ?>;
+    	OX_OWL_OBS_DISABLE = false;
+</script>

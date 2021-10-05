@@ -404,7 +404,11 @@ class Image extends AbstractHelper
      */
     public function resize()
     {
-        if ($this->_width == 0 && $this->_height == 0 && !$this->getBaseFile()) {
+        if ($this->_width == 0
+            && $this->_height == 0
+            || !$this->getBaseFile()
+            || !$this->_fileExists($this->getBaseFile())
+        ) {
             return $this;
         }
 
@@ -439,11 +443,14 @@ class Image extends AbstractHelper
     public function getUrl()
     {
         $media_url = $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
-        if (!$this->getBaseFile()) {
-            return $media_url . $this->__file;
+        if ($this->getBaseFile()) {
+            $resizedFile = $this->getResizedFile();
+            if ($resizedFile && $this->_fileExists($resizedFile)) {
+                return $media_url . $this->getResizedFile();
+            }
         }
-        
-        return $media_url . $this->getResizedFile();
+
+        return $media_url . $this->__file;
     }
 
     /**

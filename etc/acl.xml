@@ -6,6 +6,7 @@
 			<resource id="Magento_Backend::admin">
 				<resource id="Olegnax_Core::Olegnax_Core" sortOrder="10" title="Olegnax">
 					<resource id="Olegnax_Core::Modules_Update" sortOrder="10" title="Modules Update"/>
+                                        <resource id="Olegnax_Core::core_settings" sortOrder="10" title="Core Settings"/>
 				</resource>
 			</resource>
 		</resources>

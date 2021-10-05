@@ -7,7 +7,12 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-	<head>
-		<link src="Olegnax_Core::owl.carousel/assets/owl.carousel.css"/>
-	</head>
+        <referenceContainer name="head.additional">
+                <block name="ox_core_assets" class="Olegnax\Core\Block\SimpleTemplate" template="Olegnax_Core::assets.phtml"/>
+        </referenceContainer>
+	<body>
+		<referenceContainer name="before.body.end">
+			<block ifconfig="olegnax_core_settings/general/lazyload" class="Olegnax\Core\Block\SimpleTemplate" name="ox_core_lazy" template="Olegnax_Core::lazy_min.phtml"/>
+		</referenceContainer>
+	</body>
 </page>

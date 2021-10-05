@@ -126,6 +126,9 @@ class ModuleInfo extends Helper
                 'setup_version' => $this->getComposerVersion($name),
             ];
         }
+        if (empty($module['setup_version'])) {
+            $module['setup_version'] = $this->getComposerVersion($name);
+        }
         $module['title'] = str_replace('_', ' ', $module['name']);
         return (array)$module;
     }

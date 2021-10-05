@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2019 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -112,6 +112,9 @@ class Info extends Fieldset
 					<div class="ox-module-version">v<?= $this->escapeHtml($data['setup_version']); ?></div>
 				</div>
             <?php endif; ?>
+			<?php if (array_key_exists('pro', $data)): ?>
+				<a target="_blank" class="ox-pro-version" href="<?php echo $data['pro'] ?>"><?php echo __('Get Pro'); ?></a>
+			<?php endif; ?>
             <?php if (!empty($rightBlock)): ?><div class="ox-info-block__right"><?= $rightBlock; ?></div><?php endif; ?>
 		</div>
         <?php
