@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function () {
+	(function(){
         function LazyLoad() {
             this.settings = {
                 src: "data-original",
@@ -25,7 +25,7 @@
                     let _parent = parent.closest(".product-item-photo");
                     if (_parent) {
                         _parent.classList.remove(self.settings.loadClass);
-					}
+                    }
                     image.dispatchEvent(new Event(self.settings.loadEvent));
                     if (this.observer) {
                         this.observer.unobserve(image);
@@ -106,6 +106,8 @@
         window.lazyLoad = function () {
             return new LazyLoad();
         };
+	})();
+    document.addEventListener('DOMContentLoaded', function () {
         lazyLoad();
     }, false);
     require(["jquery"], function ($) {

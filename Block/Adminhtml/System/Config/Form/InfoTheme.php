@@ -14,6 +14,11 @@ use Olegnax\Core\Helper\ModuleInfo;
 
 class InfoTheme extends Info
 {
+    /**
+     * @var mixed
+     */
+    protected $_helper;
+
     public function __construct(
         Context $context,
         Session $authSession,

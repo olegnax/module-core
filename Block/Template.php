@@ -116,6 +116,9 @@ abstract class Template extends SimpleTemplate
 
     public function getBlockTemplateProcessor($content = '')
     {
+        if (empty($content) || !is_string($content)) {
+            $content = '';
+        }
         return $this->getHelper()->getBlockTemplateProcessor($content);
     }
 

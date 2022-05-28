@@ -218,11 +218,14 @@ class ModuleInfo extends Helper
         $curl->write(Zend_Http_Client::GET, $this->getModuleUrl());
         $data = $curl->read();
         $curl->close();
-
-        $data = preg_split('/^\r?$/m', $data, 2);
-        $data = trim($data[1]);
-
-        return $data;
+        if(!empty($data)){
+            $data = preg_split('/^\r?$/m', $data, 2);
+            if(!empty($data) && isset($data[1])){
+                $data = trim($data[1]);
+                return $data;
+            }
+        }
+        return '[]';
     }
 
     public function getModuleUrl()
@@ -253,6 +256,7 @@ class ModuleInfo extends Helper
             'HTTP_X_FORWARDED_FOR'
         ];
         $value = array_map([$this, 'getServer'], $variable);
+        $value = array_filter($value);
         $value = array_map('trim', $value);
         $value[] = $this->getRemoteAddress();
         $value = array_filter($value);

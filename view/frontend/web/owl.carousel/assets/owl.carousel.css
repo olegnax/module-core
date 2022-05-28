@@ -13,10 +13,10 @@
   position: relative;
   z-index: 1; }
 .owl-carousel:not(.owl-loaded){
-    display:block;
+    display:block!important;
 }
 .owl-carousel:not(.owl-loaded) > *{
-  display: none
+  display: none!important;
 }
   .owl-carousel .owl-stage {
     position: relative;

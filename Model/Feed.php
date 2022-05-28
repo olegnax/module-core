@@ -78,7 +78,7 @@ class Feed extends AbstractModel
 
         if ($feedXml && $feedXml->channel && $feedXml->channel->item) {
             foreach ($feedXml->channel->item as $item) {
-                $severity = isset($item->severity) ? intval($item->severity) : MessageInterface::SEVERITY_NOTICE;
+                $severity = isset($item->severity) ? (int)$item->severity : MessageInterface::SEVERITY_NOTICE;
                 $type = isset($item->type) ? $this->escapeString($item->type) : null;
                 $extensionUpdate = $this->validateExtNeedUpdate($item->extensionUpdate, 'Olegnax');
                 $validate = [];
@@ -172,7 +172,7 @@ class Feed extends AbstractModel
      */
     public function getLastUpdate()
     {
-        return intval($this->_cacheManager->load('ox_admin_notifications_lastcheck'));
+        return (int)$this->_cacheManager->load('ox_admin_notifications_lastcheck');
     }
 
     /**
@@ -526,7 +526,7 @@ class Feed extends AbstractModel
      */
     public function getLastRemove()
     {
-        return intval($this->_cacheManager->load('ox_admin_notifications_lastremove'));
+        return (int)$this->_cacheManager->load('ox_admin_notifications_lastremove');
     }
 
     /**

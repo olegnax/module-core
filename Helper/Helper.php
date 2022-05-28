@@ -150,11 +150,15 @@ class Helper extends AbstractHelper
      */
     public function getSystemValue($path, $storeCode = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        $value = $this->scopeConfig->getValue(
             $path,
             $scopeType,
             $storeCode
         );
+        if (is_null($value)) {
+            $value = '';
+        }
+        return $value;
     }
 
     /**
@@ -336,11 +340,11 @@ class Helper extends AbstractHelper
 					 . "jig\s browser|hiptop|^ucweb|^benq|haier|^lct|opera\s*mobi|opera\*mini|320x320|240x320|176x220"  
 					 . ")/i";  
 
-		if (preg_match($regex_match, strtolower($_SERVER['HTTP_USER_AGENT']))) {  
+		if (preg_match($regex_match, strtolower((string)$_SERVER['HTTP_USER_AGENT']))) {
 			return TRUE;  
 		}  
 
-		if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/vnd.wap.xhtml+xml') > 0) or ((isset($_SERVER['HTTP_X_WAP_PROFILE']) or isset($_SERVER['HTTP_PROFILE'])))) {  
+		if ((strpos(strtolower((string)$_SERVER['HTTP_ACCEPT']),'application/vnd.wap.xhtml+xml') > 0) or ((isset($_SERVER['HTTP_X_WAP_PROFILE']) or isset($_SERVER['HTTP_PROFILE'])))) {
 			return TRUE;  
 		}      
 
@@ -360,7 +364,7 @@ class Helper extends AbstractHelper
 			return TRUE;  
 		}  
 
-		if (isset($_SERVER['ALL_HTTP']) && strpos(strtolower($_SERVER['ALL_HTTP']),'OperaMini') > 0) {  
+		if (isset($_SERVER['ALL_HTTP']) && strpos(strtolower((string)$_SERVER['ALL_HTTP']),'OperaMini') > 0) {
 			return TRUE;  
 		}  
 
@@ -369,6 +373,9 @@ class Helper extends AbstractHelper
 
     public function getBlockTemplateProcessor($content = '')
     {
+        if (empty($content) || !is_string($content)) {
+            $content = '';
+        }
         $blockFilter = $this->_loadObject(FilterProvider::class)->getBlockFilter();
         return $blockFilter->filter(trim($content));
     }

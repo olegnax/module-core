@@ -32,7 +32,11 @@ class SimpleTemplate extends \Magento\Framework\View\Element\Template
 
     public function getSystemValue($path, $storeCode = null)
     {
-        return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeCode);
+        $value = $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeCode);
+        if (is_null($value)) {
+            $value = '';
+        }
+        return $value;
     }
 
     protected function _loadObject($object)

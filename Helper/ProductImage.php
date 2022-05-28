@@ -8,6 +8,7 @@
 
 namespace Olegnax\Core\Helper;
 
+use Exception;
 use Magento\Catalog\Block\Product\Image as CatalogBlockProductImage;
 use Magento\Catalog\Helper\Image;
 use Magento\Catalog\Model\Product;
@@ -15,6 +16,7 @@ use Magento\Catalog\Model\Product\Image\ParamsBuilder;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Config\View;
 use Magento\Framework\View\ConfigInterface;
 
@@ -28,7 +30,6 @@ class ProductImage extends AbstractHelper
 
     const TEMPLATE = 'Magento_Catalog::product/image_with_borders.phtml';
     const HOVER_TEMPLATE = 'Magento_Catalog::product/hover_image_with_borders.phtml';
-    public $_objectManager;
     /**
      * @var Image
      */
@@ -45,39 +46,66 @@ class ProductImage extends AbstractHelper
      * @var ParamsBuilder
      */
     private $imageParamsBuilder;
+    /**
+     * @var string
+     */
+    protected $_magentoVersion;
 
+    /**
+     * ProductImage constructor.
+     *
+     * @param Context $context
+     * @param Image $imageHelper
+     * @param ConfigInterface $viewConfig
+     * @param ParamsBuilder $imageParamsBuilder
+     */
     public function __construct(
         Context $context,
         Image $imageHelper,
         ConfigInterface $viewConfig,
         ParamsBuilder $imageParamsBuilder
     ) {
-
-        $this->_objectManager = ObjectManager::getInstance();
         $this->imageHelper = $imageHelper;
         $this->viewConfig = $viewConfig;
         $this->imageParamsBuilder = $imageParamsBuilder;
         parent::__construct($context);
     }
 
+    /**
+     * @param Product $product
+     * @param string $imageId
+     * @param string $imageIdHover
+     * @param string $template
+     * @param array $attributes
+     * @param array $properties
+     *
+     * @return mixed
+     */
     public function getImageHover(
         Product $product,
         $imageId,
-        $imageId_hover,
+        $imageIdHover,
         $template = self::HOVER_TEMPLATE,
         array $attributes = [],
         $properties = []
     ) {
-        if (!$this->hasHoverImage($product, $imageId, $imageId_hover)) {
+        if (!$this->hasHoverImage($product, $imageId, $imageIdHover)) {
             return $this->getImage($product, $imageId, self::TEMPLATE, $attributes, $properties);
         }
 
         $image = $this->_getImage($product, $imageId, $properties)->getUrl();
         $imageMiscParams = $this->getImageParams($imageId);
-        $image_hoverMiscParams = $this->getImageParams($imageId_hover);
+        $image_hoverMiscParams = $this->getImageParams($imageIdHover);
 
-        $image_hover = $this->resizeImage($product, $imageId_hover,
-            [$imageMiscParams['image_width'], $imageMiscParams['image_height']], $properties)->getUrl();
+        $image_hover = $this->resizeImage(
+            $product,
+            $imageIdHover,
+            [
+                $imageMiscParams['image_width'],
+                $imageMiscParams['image_height'],
+            ],
+            $properties
+        )->getUrl();
 
         $data = [
             'data' => [
@@ -85,7 +113,7 @@ class ProductImage extends AbstractHelper
                 'product_id' => $product->getId(),
                 'product' => $product,
                 'image_id' => $imageId,
-                'image_hover_id' => $imageId_hover,
+                'image_hover_id' => $imageIdHover,
                 'image_url' => $image,
                 'image_hover_url' => $image_hover,
                 'label' => $this->getLabel($product, $imageMiscParams['image_type']),
@@ -94,13 +122,20 @@ class ProductImage extends AbstractHelper
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
                 'class' => $this->getClass($attributes),
-                'custom_attributes' => $attributes,
+                'custom_attributes' => $this->getStringCustomAttributes($attributes),
             ],
         ];
 
         return $this->_createTemplate($data);
     }
 
+    /**
+     * @param Product $product
+     * @param string $imageId
+     * @param string $imageId_hover
+     *
+     * @return bool
+     */
     public function hasHoverImage(Product $product, $imageId, $imageId_hover)
     {
         if ($imageId != $imageId_hover) {
@@ -118,14 +153,22 @@ class ProductImage extends AbstractHelper
 
     /**
      * @param int $imageId
+     *
      * @return array
      */
-    protected function getImageParams($imageId)
+    public function getImageParams($imageId)
     {
-        $viewImageConfig = $this->getConfigView()->getMediaAttributes('Magento_Catalog',
-            Image::MEDIA_TYPE_CONFIG_NODE, $imageId);
+        $viewImageConfig = $this->getConfigView()->getMediaAttributes(
+            'Magento_Catalog',
+            Image::MEDIA_TYPE_CONFIG_NODE,
+            $imageId
+        );
 
         $imageMiscParams = $this->imageParamsBuilder->build($viewImageConfig);
+        if (empty($imageMiscParams)) {
+            $imageMiscParams = $this->getDefaultParams();
+            $this->_logger->critical(sprintf('No options found for "%s" images!', $imageId));
+        }
 
         return $imageMiscParams;
     }
@@ -143,6 +186,33 @@ class ProductImage extends AbstractHelper
         return $this->configView;
     }
 
+    /**
+     * @return array
+     */
+    protected function getDefaultParams()
+    {
+        return [
+            "image_type" => "small_image",
+            "image_height" => 240,
+            "image_width" => 240,
+            "background" => [255, 255, 255],
+            "quality" => 80,
+            "keep_aspect_ratio" => true,
+            "keep_frame" => true,
+            "keep_transparency" => true,
+            "constrain_only" => true,
+        ];
+    }
+
+    /**
+     * @param Product $product
+     * @param string $imageId
+     * @param string $template
+     * @param array $attributes
+     * @param array $properties
+     *
+     * @return mixed
+     */
     public function getImage(
         Product $product,
         $imageId,
@@ -165,13 +235,20 @@ class ProductImage extends AbstractHelper
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
                 'class' => $this->getClass($attributes),
-                'custom_attributes' => $attributes,
+                'custom_attributes' => $this->getStringCustomAttributes($attributes),
             ],
         ];
 
         return $this->_createTemplate($data);
     }
 
+    /**
+     * @param Product $product
+     * @param string $imageId
+     * @param array $properties
+     *
+     * @return Image
+     */
     private function _getImage(Product $product, $imageId, $properties = [])
     {
         return $this->imageHelper->init($product, $imageId, $properties);
@@ -181,9 +258,10 @@ class ProductImage extends AbstractHelper
      * @param Product $product
      *
      * @param string $imageType
+     *
      * @return string
      */
-    private function getLabel(Product $product, $imageType): string
+    private function getLabel(Product $product, string $imageType): string
     {
         $label = "";
         if (!empty($imageType)) {
@@ -200,6 +278,7 @@ class ProductImage extends AbstractHelper
      *
      * @param $width
      * @param $height
+     *
      * @return float
      */
     private function getRatio(int $width, int $height): float
@@ -210,11 +289,77 @@ class ProductImage extends AbstractHelper
         return 1.0;
     }
 
-    private function _createTemplate($data = [])
+    /**
+     * Retrieve image class for HTML element
+     *
+     * @param array $attributes
+     *
+     * @return string
+     */
+    private function getClass(array $attributes): string
     {
-        return $this->_objectManager->create(CatalogBlockProductImage::class, $data);
+        return $attributes['class'] ?? 'product-image-photo';
     }
 
+    /**
+     * Retrieve image custom attributes for HTML element
+     *
+     * @param array $attributes
+     *
+     * @return string|array
+     */
+    private function getStringCustomAttributes(array $attributes)
+    {
+        if (!$this->compareVersion()) {
+            return $attributes;
+        }
+        $result = [];
+        foreach ($attributes as $name => $value) {
+            $result[] = $name . '="' . $value . '"';
+        }
+        return !empty($result) ? implode(' ', $result) : '';
+    }
+
+    /**
+     * @return string
+     */
+    private function getMagentoVersion()
+    {
+        if (!$this->_magentoVersion) {
+            $this->_magentoVersion = ObjectManager::getInstance()->get(ProductMetadataInterface::class)->getVersion();
+        }
+
+        return $this->_magentoVersion;
+    }
+
+    /**
+     * @param $version
+     *
+     * @return bool
+     */
+    protected function compareVersion($version = '2.4.0')
+    {
+        return version_compare($this->getMagentoVersion(), $version, '<');
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return CatalogBlockProductImage
+     */
+    private function _createTemplate($data = [])
+    {
+        return ObjectManager::getInstance()->create(CatalogBlockProductImage::class, $data);
+    }
+
+    /**
+     * @param Product $product
+     * @param string $imageId
+     * @param array|int $size
+     * @param array $properties
+     *
+     * @return Image
+     */
     public function resizeImage(Product $product, $imageId, $size, $properties = [])
     {
         $size = $this->prepareSize($size);
@@ -224,6 +369,11 @@ class ProductImage extends AbstractHelper
         return $image;
     }
 
+    /**
+     * @param array|int $size
+     *
+     * @return array
+     */
     private function prepareSize($size)
     {
         if (is_array($size) && 1 >= count($size)) {
@@ -237,6 +387,17 @@ class ProductImage extends AbstractHelper
         return $size;
     }
 
+    /**
+     * @param Product $product
+     * @param string $imageId
+     * @param string $imageId_hover
+     * @param array|int $size
+     * @param string $template
+     * @param array $attributes
+     * @param array $properties
+     *
+     * @return CatalogBlockProductImage|mixed
+     */
     public function getResizedImageHover(
         Product $product,
         $imageId,
@@ -265,7 +426,7 @@ class ProductImage extends AbstractHelper
         if (empty($size)) {
             $size = [$imageMiscParams['image_width'], $imageMiscParams['image_height']];
         } elseif (is_array($size)) {
-            foreach (['image_width', 'image_width'] as $key => $value) {
+            foreach (['image_width', 'image_height'] as $key => $value) {
                 if (!isset($size[$key]) || empty($size[$key])) {
                     $size[$key] = $imageMiscParams[$value];
                 }
@@ -273,7 +434,15 @@ class ProductImage extends AbstractHelper
         }
 
         $image = $this->resizeImage($product, $imageId, $size, $properties);
-        list($imageMiscParams['image_width'], $imageMiscParams['image_height']) = $image->getResizedImageInfo();
+        try {
+            [
+                $imageMiscParams['image_width'],
+                $imageMiscParams['image_height']
+            ] = $image->getResizedImageInfo();
+        } catch (Exception $e) {
+            $this->_logger->error("OX Product Image: " . $e->getMessage());
+            $imageMiscParams['image_width'] = $imageMiscParams['image_height'] = 1;
+        }
         $image = $image->getUrl();
         $image_hover = $this->resizeImage($product, $imageId_hover, $size, $properties)->getUrl();
         $image_hoverMiscParams = $this->getImageParams($imageId_hover);
@@ -297,13 +466,23 @@ class ProductImage extends AbstractHelper
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
                 'class' => $this->getClass($attributes),
-                'custom_attributes' => $attributes,
+                'custom_attributes' => $this->getStringCustomAttributes($attributes),
             ],
         ];
 
         return $this->_createTemplate($data);
     }
 
+    /**
+     * @param Product $product
+     * @param string $imageId
+     * @param array|int $size
+     * @param string $template
+     * @param array $attributes
+     * @param array $properties
+     *
+     * @return CatalogBlockProductImage|mixed
+     */
     public function getResizedImage(
         Product $product,
         $imageId,
@@ -317,7 +496,7 @@ class ProductImage extends AbstractHelper
             return $this->getImage($product, $imageId, $template, $attributes, $properties);
         }
         if (is_array($size)) {
-            foreach (['image_width', 'image_width'] as $key => $value) {
+            foreach (['image_width', 'image_height'] as $key => $value) {
                 if (!isset($size[$key]) || empty($size[$key])) {
                     $size[$key] = $imageMiscParams[$value];
                 }
@@ -325,7 +504,15 @@ class ProductImage extends AbstractHelper
         }
         $image = $this->resizeImage($product, $imageId, $size, $properties);
         $imageMiscParams = $this->getImageParams($imageId);
-        list($imageMiscParams['image_width'], $imageMiscParams['image_height']) = $image->getResizedImageInfo();
+        try {
+            [
+                $imageMiscParams['image_width'],
+                $imageMiscParams['image_height']
+            ] = $image->getResizedImageInfo();
+        } catch (Exception $e) {
+            $this->_logger->error("OX Product Image: " . $e->getMessage());
+            $imageMiscParams['image_width'] = $imageMiscParams['image_height'] = 1;
+        }
 
         $data = [
             'data' => [
@@ -339,7 +526,7 @@ class ProductImage extends AbstractHelper
                 'height' => $imageMiscParams['image_height'],
                 'ratio' => $this->getRatio($imageMiscParams['image_width'], $imageMiscParams['image_height']),
                 'class' => $this->getClass($attributes),
-                'custom_attributes' => $attributes,
+                'custom_attributes' => $this->getStringCustomAttributes($attributes),
             ],
         ];
 
@@ -347,20 +534,16 @@ class ProductImage extends AbstractHelper
     }
 
     /**
-     * Retrieve image class for HTML element
+     * @param Product $product
+     * @param string $image
+     * @param array|int $size
+     * @param array $properties
      *
-     * @param array $attributes
      * @return string
      */
-    private function getClass(array $attributes): string
-    {
-        return $attributes['class'] ?? 'product-image-photo';
-    }
-
     public function getUrlResizedImage(Product $product, $image, $size, $properties = [])
     {
         $image = $this->resizeImage($product, $image, $size, $properties);
         return $image->getUrl();
     }
-
 }

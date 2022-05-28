@@ -1,4 +1,4 @@
-require(["jquery", 'prototype'], function ($) {
+require(["jquery", 'prototype', 'mage/adminhtml/tools'], function ($) {
     "use strict";
     $(function () {
         window.toggleValueElements_old = window.toggleValueElements;
