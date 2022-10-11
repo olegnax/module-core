@@ -168,11 +168,18 @@ class Feed extends AbstractModel
     }
 
     /**
+     * @return \Olegnax\Core\Helper\Helper
+     */
+    protected function helper(){
+        return $this->_loadObject(\Olegnax\Core\Helper\Helper::class);
+    }
+
+    /**
      * @return int
      */
     public function getLastUpdate()
     {
-        return (int)$this->_cacheManager->load('ox_admin_notifications_lastcheck');
+        return (int)$this->helper()->getModuleConfig('admin_notifications/lastcheck');
     }
 
     /**
@@ -497,7 +504,7 @@ class Feed extends AbstractModel
      */
     public function setLastUpdate()
     {
-        $this->_cacheManager->save(time(), 'ox_admin_notifications_lastcheck');
+        $this->helper()->setModuleConfig('admin_notifications/lastcheck', time());
         return $this;
     }
 
@@ -526,7 +533,7 @@ class Feed extends AbstractModel
      */
     public function getLastRemove()
     {
-        return (int)$this->_cacheManager->load('ox_admin_notifications_lastremove');
+        return (int)$this->helper()->getModuleConfig('admin_notifications/lastremove');
     }
 
     /**
@@ -534,7 +541,7 @@ class Feed extends AbstractModel
      */
     public function setLastRemove()
     {
-        $this->_cacheManager->save(time(), 'ox_admin_notifications_lastremove');
+        $this->helper()->setModuleConfig('admin_notifications/lastremove', time());
         return $this;
     }
 
