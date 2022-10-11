@@ -1,116 +1,120 @@
 <script type="text/javascript">
-	(function(){
-        function LazyLoad() {
+    (function () {
+        function LazyLoad () {
             this.settings = {
-                src: "data-original",
-                srcset: "data-originalset",
-                selector: ".lazy",
-                selectorClass: "lazy",
-                loadClass: "lazy-loader",
+                src: 'data-original',
+                srcset: 'data-originalset',
+                selector: '.lazy',
+                selectorClass: 'lazy',
+                loadClass: 'lazy-loader',
                 loadEvent: 'lazyLoaded.oxlazy',
                 root: null,
-                rootMargin: "0px",
+                rootMargin: '0px',
                 threshold: 0,
                 debouncer: 500
-            };
-            this.images = document.querySelectorAll(this.settings.selector);
-            this.observer = null;
-            let self = this;
+            }
+            this.images = document.querySelectorAll(this.settings.selector)
+            this.observer = null
+            let self = this
             this.load = (event) => {
                 let image = event.target,
-                    parent = image.parentElement;
+                    parent = image.parentElement
                 if (image.src == image.getAttribute(this.settings.src)) {
-                    image.classList.remove(self.settings.selectorClass);
-                    parent.classList.remove(self.settings.loadClass);
-                    let _parent = parent.closest(".product-item-photo");
+                    image.classList.remove(self.settings.selectorClass)
+                    parent.classList.remove(self.settings.loadClass)
+                    let _parent = parent.closest('.product-item-photo')
                     if (_parent) {
-                        _parent.classList.remove(self.settings.loadClass);
+                        _parent.classList.remove(self.settings.loadClass)
                     }
-                    image.dispatchEvent(new Event(self.settings.loadEvent));
+                    image.dispatchEvent(new Event(self.settings.loadEvent))
                     if (this.observer) {
-                        this.observer.unobserve(image);
+                        this.observer.unobserve(image)
                     }
                 }
-            };
+            }
             this.destroy = () => {
-                this.observer.disconnect();
-            };
+                this.observer.disconnect()
+            }
             this.oldLoadImages = () => {
                 if (!this.settings) {
-                    return;
+                    return
                 }
                 let debouncer = function (func, timeout) {
-                    var timeoutID;
+                    var timeoutID
                     return function () {
                         var scope = this,
-                            args = arguments;
-                        clearTimeout(timeoutID);
+                            args = arguments
+                        clearTimeout(timeoutID)
                         timeoutID = setTimeout(function () {
-                            func.apply(scope, Array.prototype.slice.call(args));
-                        }, timeout);
+                            func.apply(scope, Array.prototype.slice.call(args))
+                        }, timeout)
                     }
-                };
-                window.addEventListener('scroll', debouncer(self.oldInit, self.settings.debouncer));
-                window.addEventListener('resize', debouncer(self.oldInit, self.settings.debouncer));
-                self.oldInit();
-            };
+                }
+                window.addEventListener('scroll', debouncer(self.oldInit, self.settings.debouncer))
+                window.addEventListener('resize', debouncer(self.oldInit, self.settings.debouncer))
+                self.oldInit()
+            }
             this.oldInit = () => {
-                let height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                let height = window.visualViewport ? window.visualViewport.height : window.innerHeight
                 Array.prototype.forEach.call(this.images, function (image) {
                     if (image.classList.contains(self.settings.selectorClass)) {
-                        let bounding = image.getBoundingClientRect();
+                        let bounding = image.getBoundingClientRect()
                         if (bounding.top != bounding.bottom && 0 < bounding.bottom && height > bounding.top) {
-                            self.applyImage(image);
+                            self.applyImage(image)
                         }
                     }
-                });
-            };
+                })
+            }
             this.applyImage = (image) => {
                 let src = image.getAttribute(self.settings.src),
-                    srcset = image.getAttribute(self.settings.srcset);
-                if ("img" === image.tagName.toLowerCase()) {
-                    image.onload = self.load;
+                    srcset = image.getAttribute(self.settings.srcset)
+                if ('img' === image.tagName.toLowerCase()) {
+                    image.onload = self.load
                     if (src) {
-                        image.src = src;
+                        image.src = src
                     }
                     if (srcset) {
-                        image.srcset = srcset;
+                        image.srcset = srcset
                     }
                 } else {
-                    image.style.backgroundImage = "url('" + src + "')";
+                    image.style.backgroundImage = 'url(\'' + src + '\')'
                 }
-            };
+            }
             this.init = () => {
                 if (!window.IntersectionObserver) {
-                    this.oldLoadImages();
-                    return;
+                    this.oldLoadImages()
+                    return
                 }
-                this.observer = new IntersectionObserver(function (entries, observer) {
-                    Array.prototype.forEach.call(entries, function (entry) {
-                        if (entry.isIntersecting) {
-                            self.applyImage(entry.target);
-                        }
-                    });
-                }, {
-                    root: this.settings.root,
-                    rootMargin: this.settings.rootMargin,
-                    threshold: [this.settings.threshold]
-                });
-                Array.prototype.forEach.call(this.images, function (image) {
-                    self.observer.observe(image);
-                });
-            };
-            this.init();
+                try {
+                    this.observer = new IntersectionObserver(function (entries, observer) {
+                        Array.prototype.forEach.call(entries, function (entry) {
+                            if (entry.isIntersecting) {
+                                self.applyImage(entry.target)
+                            }
+                        })
+                    }, {
+                        rootMargin: this.settings.rootMargin,
+                        threshold: [this.settings.threshold]
+                    })
+                    Array.prototype.forEach.call(this.images, function (image) {
+                        self.observer.observe(image)
+                    })
+                } catch (e) {
+                    console.info(e)
+                    this.oldLoadImages()
+                }
+            }
+            this.init()
         }
 
         window.lazyLoad = function () {
-            return new LazyLoad();
-        };
-	})();
+            return new LazyLoad()
+        }
+    })()
     document.addEventListener('DOMContentLoaded', function () {
-        lazyLoad();
-    }, false);
-    require(["jquery"], function ($) {
-        $(document.body).on('contentUpdated contentUpdated.oxlazy', lazyLoad);
-    });
+        lazyLoad()
+    }, false)
+    require(['jquery'], function ($) {
+        $(document.body).on('contentUpdated contentUpdated.oxlazy', lazyLoad)
+    })
 </script>
