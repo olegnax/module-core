@@ -115,6 +115,7 @@ define([
             }
         },
         _loadOwl: function () {
+            this.element.find('picture.owl-lazy').removeClass('owl-lazy');
             this.element.owlCarousel(this.options);
             this.arrows();
         },
