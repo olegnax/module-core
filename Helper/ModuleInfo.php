@@ -13,9 +13,9 @@ use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
 use Magento\Framework\Filesystem\Directory\ReadFactory;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
+use Magento\Framework\HTTP\AsyncClient\Request;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\Module\ModuleListInterface;
-use Zend_Http_Client;
 
 class ModuleInfo extends Helper
 {
@@ -215,7 +215,7 @@ class ModuleInfo extends Helper
                 'verifyhost' => 0,
             ]
         );
-        $curl->write(Zend_Http_Client::GET, $this->getModuleUrl());
+        $curl->write(Request::METHOD_GET, $this->getModuleUrl());
         $data = $curl->read();
         $curl->close();
         if(!empty($data)){

@@ -2,7 +2,7 @@
 <!--
   ~ @author      Olegnax
   ~ @package     Olegnax_Core
-  ~ @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/). All rights reserved.
+  ~ @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
   ~ See COPYING.txt for license details.
   -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">

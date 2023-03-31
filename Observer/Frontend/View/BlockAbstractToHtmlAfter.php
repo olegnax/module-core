@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Athlete2
- * @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 declare(strict_types=1);

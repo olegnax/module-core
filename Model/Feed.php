@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -19,10 +19,12 @@ use Magento\Framework\Config\ConfigOptionsListConstants;
 use Magento\Framework\DataObject;
 use Magento\Framework\Filesystem\Directory\ReadFactory;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
+use Magento\Framework\HTTP\AsyncClient\Request;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Notification\MessageInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Olegnax\Core\Helper\Helper;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExistsFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExpiredFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContent;
@@ -30,7 +32,6 @@ use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContentP;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OXFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxUpdate;
 use SimpleXMLElement;
-use Zend_Http_Client;
 
 class Feed extends AbstractModel
 {
@@ -168,10 +169,10 @@ class Feed extends AbstractModel
     }
 
     /**
-     * @return \Olegnax\Core\Helper\Helper
+     * @return Helper
      */
     protected function helper(){
-        return $this->_loadObject(\Olegnax\Core\Helper\Helper::class);
+        return $this->_loadObject( Helper::class);
     }
 
     /**
@@ -213,7 +214,7 @@ class Feed extends AbstractModel
                 'verifyhost' => false,
             ]
         );
-        $curl->write(Zend_Http_Client::GET, $this->getFeedUrl(), '1.0');
+        $curl->write( Request::METHOD_GET, $this->getFeedUrl(), '1.0');
         $data = $curl->read();
         if ($data === false || $data === '') {
             return '';

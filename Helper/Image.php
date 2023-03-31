@@ -11,6 +11,7 @@ use Exception;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\State;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\WriteInterface;
@@ -101,6 +102,7 @@ class Image extends AbstractHelper
      * @var File
      */
     protected $_file;
+    protected $_appState;
     /**
      * @var string
      */
@@ -111,12 +113,14 @@ class Image extends AbstractHelper
         Filesystem $filesystem,
         Factory $imageFactory,
         File $file,
+        State $appState,
         StoreManagerInterface $storeManager
     ) {
         $this->_mediaDirectory = $filesystem->getDirectoryRead(DirectoryList::MEDIA);
         $this->_imageFactory = $imageFactory;
         $this->_file = $file;
         $this->_storeManager = $storeManager;
+        $this->_appState = $appState;
 
         parent::__construct($context);
     }
@@ -135,7 +139,9 @@ class Image extends AbstractHelper
             }
             $this->resize();
         } catch (Exception $e) {
-            $this->_logger->error("Image Resize: " . $e, [$this->_baseFile]);
+            if ( State::MODE_DEVELOPER == $this->_appState->getMode()) {
+                $this->_logger->warning("Olegnax Core. Can\'t resize image, skipping. The file does not exist or not accessible: " . $e, [$this->_baseFile]);
+            }
         }
 
         return $this;
@@ -217,45 +223,47 @@ class Image extends AbstractHelper
         $path_data = pathinfo($this->getBaseFile());
 
         if (is_array($path_data) && !empty($path_data)) {
-            $filename = str_replace(
-                [
-                    '{dirname}',
-                    '{basename}',
-                    '{extension}',
-                    '{filename}',
-                    '{width}',
-                    '{height}',
-                    '{originalWidth}',
-                    '{originalHeight}',
-                    '{destinationSubdir}',
-                    '{keepFrame}',
-                    '{constrainOnly}',
-                    '{keepAspectRatio}',
-                    '{crop}',
-                    '{keepTransparency}',
-                    '{quality}',
-                ],
-                [
-                    $path_data['dirname'],
-                    $path_data['basename'],
-                    $path_data['extension'],
-                    $path_data['filename'],
-                    $this->getWidth(),
-                    $this->getHeight(),
-                    $this->getOriginalWidth(),
-                    $this->getOriginalHeight(),
-                    $this->getDestinationSubdir(),
-                    $this->getQuality(),
-                    $this->_keepFrame,
-                    $this->_constrainOnly,
-                    $this->_keepAspectRatio,
-                    $this->_cropOnly,
-                    $this->_keepTransparency,
-                ],
-                $this->_resizeTemplate
-            );
+            if(array_key_exists('extension', $path_data)){
+                $filename = str_replace(
+                    [
+                        '{dirname}',
+                        '{basename}',
+                        '{extension}',
+                        '{filename}',
+                        '{width}',
+                        '{height}',
+                        '{originalWidth}',
+                        '{originalHeight}',
+                        '{destinationSubdir}',
+                        '{keepFrame}',
+                        '{constrainOnly}',
+                        '{keepAspectRatio}',
+                        '{crop}',
+                        '{keepTransparency}',
+                        '{quality}',
+                    ],
+                    [
+                        $path_data['dirname'],
+                        $path_data['basename'],
+                        $path_data['extension'],
+                        $path_data['filename'],
+                        $this->getWidth(),
+                        $this->getHeight(),
+                        $this->getOriginalWidth(),
+                        $this->getOriginalHeight(),
+                        $this->getDestinationSubdir(),
+                        $this->getQuality(),
+                        $this->_keepFrame,
+                        $this->_constrainOnly,
+                        $this->_keepAspectRatio,
+                        $this->_cropOnly,
+                        $this->_keepTransparency,
+                    ],
+                    $this->_resizeTemplate
+                );
 
-            return $filename;
+                return $filename;
+            }
         }
         return '';
     }
@@ -278,8 +286,8 @@ class Image extends AbstractHelper
     {
         if ($this->_fileExists($file)) {
             $this->_baseFile = $file;
-        } else {
-            $this->_logger->error(__('The file does not exist: ') . $file);
+        } elseif ( State::MODE_DEVELOPER == $this->_appState->getMode()) {
+            $this->_logger->warning(__('Olegnax Core. The file does not exist or not accessible: ') . $file);
         }
 
         return $this;

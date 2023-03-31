@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2021 Olegnax (http://olegnax.com/)
+ * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/)
  * @license     https://olegnax.com/license
  */
 
