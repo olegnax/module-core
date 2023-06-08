@@ -17,6 +17,7 @@ use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\WriteInterface;
 use Magento\Framework\Filesystem\Glob;
 use Magento\Framework\Filesystem\Io\File;
+use Magento\Framework\Image\AdapterFactory;
 use Magento\Framework\Image\Factory;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -104,6 +105,10 @@ class Image extends AbstractHelper
     protected $_file;
     protected $_appState;
     /**
+     * @var AdapterFactory
+     */
+    protected $adapterFactory;
+    /**
      * @var string
      */
     private $__file;
@@ -114,15 +119,30 @@ class Image extends AbstractHelper
         Factory $imageFactory,
         File $file,
         State $appState,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        AdapterFactory $adapterFactory
     ) {
         $this->_mediaDirectory = $filesystem->getDirectoryRead(DirectoryList::MEDIA);
         $this->_imageFactory = $imageFactory;
         $this->_file = $file;
         $this->_storeManager = $storeManager;
         $this->_appState = $appState;
+        $this->adapterFactory = $adapterFactory;
 
         parent::__construct($context);
+    }
+
+    /**
+     * @return bool
+     */
+    public function checkDependencies() {
+        try {
+            $this->adapterFactory->create();
+            return true;
+        } catch (Exception $e) {
+            $this->_logger->critical($e->getMessage());
+            return false;
+        }
     }
 
     public function adaptiveResize($size, $fileTemplate = null)
@@ -139,8 +159,9 @@ class Image extends AbstractHelper
             }
             $this->resize();
         } catch (Exception $e) {
-            if ( State::MODE_DEVELOPER == $this->_appState->getMode()) {
-                $this->_logger->warning("Olegnax Core. Can\'t resize image, skipping. The file does not exist or not accessible: " . $e, [$this->_baseFile]);
+            if (State::MODE_DEVELOPER == $this->_appState->getMode()) {
+                $this->_logger->warning("Olegnax Core. Can\'t resize image, skipping. The file does not exist or not accessible: " . $e,
+                    [$this->_baseFile]);
             }
         }
 
@@ -204,10 +225,37 @@ class Image extends AbstractHelper
     }
 
     /**
+     * @return string
+     */
+    public function getBaseFile()
+    {
+        return $this->_baseFile;
+    }
+
+    /**
+     * Set filenames for base file and new file
+     *
+     * @param string $file
+     *
+     * @return Image
+     */
+    public function setBaseFile($file)
+    {
+        if ($this->_fileExists($file)) {
+            $this->_baseFile = $file;
+        } elseif (State::MODE_DEVELOPER == $this->_appState->getMode()) {
+            $this->_logger->warning(__('Olegnax Core. The file does not exist or not accessible: ') . $file);
+        }
+
+        return $this;
+    }
+
+    /**
      * First check this file on FS
      * If it doesn't exist - try to download it from DB
      *
      * @param string $filename
+     *
      * @return bool
      */
     protected function _fileExists($filename)
@@ -223,7 +271,7 @@ class Image extends AbstractHelper
         $path_data = pathinfo($this->getBaseFile());
 
         if (is_array($path_data) && !empty($path_data)) {
-            if(array_key_exists('extension', $path_data)){
+            if (array_key_exists('extension', $path_data)) {
                 $filename = str_replace(
                     [
                         '{dirname}',
@@ -269,31 +317,6 @@ class Image extends AbstractHelper
     }
 
     /**
-     * @return string
-     */
-    public function getBaseFile()
-    {
-        return $this->_baseFile;
-    }
-
-    /**
-     * Set filenames for base file and new file
-     *
-     * @param string $file
-     * @return Image
-     */
-    public function setBaseFile($file)
-    {
-        if ($this->_fileExists($file)) {
-            $this->_baseFile = $file;
-        } elseif ( State::MODE_DEVELOPER == $this->_appState->getMode()) {
-            $this->_logger->warning(__('Olegnax Core. The file does not exist or not accessible: ') . $file);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return int
      */
     public function getWidth()
@@ -303,6 +326,7 @@ class Image extends AbstractHelper
 
     /**
      * @param int $width
+     *
      * @return Image
      */
     public function setWidth($width)
@@ -347,6 +371,7 @@ class Image extends AbstractHelper
 
     /**
      * @param int $height
+     *
      * @return $this
      */
     public function setHeight($height)
@@ -373,6 +398,7 @@ class Image extends AbstractHelper
 
     /**
      * @param string $dir
+     *
      * @return $this
      */
     public function setDestinationSubdir($dir)
@@ -395,6 +421,7 @@ class Image extends AbstractHelper
      * Set image quality, values in percentage from 0 to 100
      *
      * @param int $quality
+     *
      * @return $this
      */
     public function setQuality($quality)
@@ -436,6 +463,7 @@ class Image extends AbstractHelper
 
     /**
      * @param \Magento\Framework\Image $processor
+     *
      * @return $this
      */
     public function setImageProcessor($processor)
@@ -463,6 +491,7 @@ class Image extends AbstractHelper
 
     /**
      * @param string $size
+     *
      * @return $this
      */
     public function setSize($size)
@@ -497,6 +526,7 @@ class Image extends AbstractHelper
 
     /**
      * @param $file
+     *
      * @throws Exception
      */
     public function removeResized($file)
@@ -539,6 +569,7 @@ class Image extends AbstractHelper
     /**
      * @param $file
      * @param array $attributes
+     *
      * @return $this
      * @throws Exception
      */
@@ -574,6 +605,7 @@ class Image extends AbstractHelper
 
     /**
      * @param int[] $rgbArray
+     *
      * @return $this
      */
     public function setBackgroundColor(array $rgbArray)
@@ -584,6 +616,7 @@ class Image extends AbstractHelper
 
     /**
      * @param bool $flag
+     *
      * @return $this
      */
     public function setConstrainOnly($flag)
@@ -594,6 +627,7 @@ class Image extends AbstractHelper
 
     /**
      * @param bool $keep
+     *
      * @return $this
      */
     public function setKeepAspectRatio($keep)
@@ -604,6 +638,7 @@ class Image extends AbstractHelper
 
     /**
      * @param bool $keep
+     *
      * @return $this
      */
     public function setKeepFrame($keep)
@@ -614,6 +649,7 @@ class Image extends AbstractHelper
 
     /**
      * @param bool $keep
+     *
      * @return $this
      */
     public function setKeepTransparency($keep)
@@ -680,6 +716,7 @@ class Image extends AbstractHelper
      * Retrieve image attribute
      *
      * @param string $name
+     *
      * @return string
      */
     protected function getAttribute($name)
@@ -689,6 +726,7 @@ class Image extends AbstractHelper
 
     /**
      * @param bool $flag
+     *
      * @return $this
      */
     public function seCropOnly($flag)
