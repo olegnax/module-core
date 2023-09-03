@@ -16,6 +16,7 @@ use Magento\Framework\HTTP\Adapter\CurlFactory;
 use Magento\Framework\HTTP\AsyncClient\Request;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\Module\ModuleListInterface;
+use Psr\Log\LoggerInterface;
 
 class ModuleInfo extends Helper
 {
@@ -62,6 +63,7 @@ class ModuleInfo extends Helper
 
     public function __construct(
         Context $context,
+        LoggerInterface $logger,
         CurlFactory $curlFactory,
         ProductMetadataInterface $productMetadata,
         RemoteAddress $remoteAddress,
@@ -77,7 +79,7 @@ class ModuleInfo extends Helper
         $this->componentRegistrar = $componentRegistrar;
         $this->readFactory = $readFactory;
         $this->request = $request;
-        parent::__construct($context);
+        parent::__construct($context, $logger);
     }
 
     public function getServer(

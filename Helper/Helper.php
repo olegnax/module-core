@@ -28,6 +28,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Wishlist\Helper\Data;
 use Olegnax\Core\Block\ChildTemplate;
+use Psr\Log\LoggerInterface;
 
 class Helper extends AbstractHelper
 {
@@ -45,10 +46,17 @@ class Helper extends AbstractHelper
      * @var array
      */
     protected $isArea = [];
+    /**
+     * @var LoggerInterface
+     */
+    public $logger;
 
-    public function __construct(Context $context)
+    public function __construct(
+        Context $context,
+        LoggerInterface $logger
+    )
     {
-        $this->objectManager = ObjectManager::getInstance();
+        $this->logger = $logger;
 
         parent::__construct($context);
         if (!$this->getModuleConfig(
@@ -101,7 +109,7 @@ class Helper extends AbstractHelper
      */
     public function _loadObject($path)
     {
-        return $this->objectManager->get($path);
+        return ObjectManager::getInstance()->get($path);
     }
 
     /**
@@ -210,7 +218,7 @@ class Helper extends AbstractHelper
      */
     public function _createObject($path, $arguments = [])
     {
-        return $this->objectManager->create($path, $arguments);
+        return ObjectManager::getInstance()->create($path, $arguments);
     }
 
     public function getLayoutTemplateHtml($block, $option_path = '', $fileName = '', $arguments = [])
@@ -424,4 +432,19 @@ class Helper extends AbstractHelper
         }
     }
 
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    public function log($level, $plugin, $message, array $context = [])
+    {
+        $message = sprintf('%s: %s', $plugin, trim($message));
+        $this->getLogger()->log($level, $message, $context);
+    }
+
+    public function debug($plugin, $message, array $context = [])
+    {
+        $this->log(100, $plugin, $message, $context);
+    }
 }

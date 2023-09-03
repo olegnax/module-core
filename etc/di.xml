@@ -9,4 +9,22 @@
 	<type name="Magento\Framework\View\TemplateEngine\Php">
 		<plugin disabled="false" name="Olegnax_Core_Plugin_Magento_Framework_View_TemplateEngine_Php" sortOrder="10" type="Olegnax\Core\Plugin\Magento\Framework\View\TemplateEngine\Php"/>
 	</type>
+	<type name="Olegnax\Core\Logger\Debug">
+		<arguments>
+			<argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+		</arguments>
+	</type>
+	<virtualType name="Olegnax\Core\Logger\Logger" type="Monolog\Logger">
+		<arguments>
+			<argument name="name" xsi:type="string">Olegnax</argument>
+			<argument name="handlers"  xsi:type="array">
+				<item name="debug" xsi:type="object">Olegnax\Core\Logger\Debug</item>
+			</argument>
+		</arguments>
+	</virtualType>
+	<type name="Olegnax\Core\Helper\Helper">
+		<arguments>
+			<argument name="logger" xsi:type="object">Olegnax\Core\Logger\Logger</argument>
+		</arguments>
+	</type>
 </config>
