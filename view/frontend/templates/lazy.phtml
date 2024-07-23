@@ -35,36 +35,6 @@
             this.destroy = () => {
                 this.observer.disconnect()
             }
-            this.oldLoadImages = () => {
-                if (!this.settings) {
-                    return
-                }
-                let debouncer = function (func, timeout) {
-                    var timeoutID
-                    return function () {
-                        var scope = this,
-                            args = arguments
-                        clearTimeout(timeoutID)
-                        timeoutID = setTimeout(function () {
-                            func.apply(scope, Array.prototype.slice.call(args))
-                        }, timeout)
-                    }
-                }
-                window.addEventListener('scroll', debouncer(self.oldInit, self.settings.debouncer))
-                window.addEventListener('resize', debouncer(self.oldInit, self.settings.debouncer))
-                self.oldInit()
-            }
-            this.oldInit = () => {
-                let height = window.visualViewport ? window.visualViewport.height : window.innerHeight
-                Array.prototype.forEach.call(this.images, function (image) {
-                    if (image.classList.contains(self.settings.selectorClass)) {
-                        let bounding = image.getBoundingClientRect()
-                        if (bounding.top != bounding.bottom && 0 < bounding.bottom && height > bounding.top) {
-                            self.applyImage(image)
-                        }
-                    }
-                })
-            }
             this.applyImage = (image) => {
                 let src = image.getAttribute(self.settings.src),
                     srcset = image.getAttribute(self.settings.srcset)
@@ -82,7 +52,6 @@
             }
             this.init = () => {
                 if (!window.IntersectionObserver) {
-                    this.oldLoadImages()
                     return
                 }
                 try {
@@ -101,7 +70,6 @@
                     })
                 } catch (e) {
                     console.info(e)
-                    this.oldLoadImages()
                 }
             }
             this.init()

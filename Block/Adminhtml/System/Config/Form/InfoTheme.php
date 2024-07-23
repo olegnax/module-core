@@ -45,7 +45,7 @@ class InfoTheme extends Info
         $supportExpired = isset($license->notices->support);
         $notice = [];
         if ($status) {
-            $notice[] = '<div class="ox-info-block__support support-' . ($supportExpired ? 'expired' : 'active') . '"><div class="wrapper"><span class="label">' . __('Support') . '</span>';
+            $notice[] = '<div class="ox-info-block__support support-' . ($supportExpired ? 'expired' : 'active') . '"><div class="ox-wrapper wrapper"><span class="label">' . __('Support') . '</span>';
             if ($supportExpired) {
                 $notice[] = '<a href="https://themeforest.net/item/athlete2-strong-magento-2-theme/23693737" target="_blank">' . __('Renew') . '</a>';
             } else {

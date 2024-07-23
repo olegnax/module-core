@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
 	<system>
-                <tab id="olegnax" translate="label" sortOrder="10">
-                    <label>Olegnax</label>
-                </tab>
+		<tab id="olegnax" translate="label" sortOrder="10">
+			<label>Olegnax</label>
+		</tab>
 		<section id="olegnax_core_settings" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
 			<label>Core</label>
 			<tab>olegnax</tab>
@@ -23,6 +23,12 @@
 					   type="select">
 					<label>Owl Carousel Enabled</label>
                                         <comment>If disabled, lazy load script and css will not be loaded. As a result Theme and extensions which rely on owl carsouel will not work and drop an error. So disable it only if you decided to not use owl carousel at all and removed all of the theme blocks and widgets which rely on owl carousel script.</comment>
+					<frontend_class>on-off-trigger</frontend_class>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="defer_assets" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="14" translate="label"
+				type="select">
+					<label>Defer CSS Assest Enabled</label>
 					<frontend_class>on-off-trigger</frontend_class>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>

@@ -11,7 +11,6 @@ namespace Olegnax\Core\Model;
 use Exception;
 use Magento\AdminNotification\Model\InboxFactory;
 use Magento\Framework\App\DeploymentConfig;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
@@ -24,7 +23,7 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Notification\MessageInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Olegnax\Core\Helper\Helper;
+use Olegnax\Core\Helper\Helper as CoreHelper; 
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExistsFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExpiredFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContent;
@@ -50,16 +49,51 @@ class Feed extends AbstractModel
     const REMOVE_FREQUENCY = 6;
 
     /**
-     *
-     * @var ObjectManager
-     */
-    public $_objectManager;
-    /**
      * Feed url
      *
      * @var string
      */
+    protected $expiredFactory;
+    protected $productMetadata;
+    protected $storeManagerInterface;
+    protected $moduleListInterface;
+    protected $componentRegistrarInterface;
+    protected $readFactory;
+    protected $oxFactory;
+    protected $existsFactory;
+    protected $deploymentConfig;
+    protected $inboxFactory;
+    protected $coreHelper;
+    protected $curlFactory;
     protected $_feedUrl;
+
+    public function __construct(
+        ExpiredFactory $expiredFactory,
+        ProductMetadataInterface $productMetadata,
+        StoreManagerInterface $storeManagerInterface,
+        ModuleListInterface $moduleListInterface,
+        ComponentRegistrarInterface $componentRegistrarInterface,
+        ReadFactory $readFactory,
+        OXFactory $oxFactory,
+        ExistsFactory $existsFactory,
+        DeploymentConfig $deploymentConfig,
+        InboxFactory $inboxFactory,
+        coreHelper $coreHelper,
+        CurlFactory $curlFactory
+    ) {
+        $this->expiredFactory = $expiredFactory;
+        $this->productMetadata = $productMetadata;
+        $this->storeManagerInterface = $storeManagerInterface;
+        $this->moduleListInterface = $moduleListInterface;
+        $this->componentRegistrarInterface = $componentRegistrarInterface;
+        $this->readFactory = $readFactory;
+        $this->oxFactory = $oxFactory;
+        $this->existsFactory = $existsFactory;
+        $this->deploymentConfig = $deploymentConfig;
+        $this->inboxFactory = $inboxFactory;
+        $this->coreHelper = $coreHelper;
+        $this->curlFactory = $curlFactory;
+    }
 
     /**
      * @return $this
@@ -74,7 +108,7 @@ class Feed extends AbstractModel
 
         $feedXml = $this->getFeedXml();
 
-        $installDate = strtotime($this->_loadObject(DeploymentConfig::class)->get(ConfigOptionsListConstants::CONFIG_PATH_INSTALL_DATE));
+        $installDate = strtotime($this->deploymentConfig->get(ConfigOptionsListConstants::CONFIG_PATH_INSTALL_DATE));
         $types = [];
 
         if ($feedXml && $feedXml->channel && $feedXml->channel->item) {
@@ -152,7 +186,7 @@ class Feed extends AbstractModel
                 if (!empty($types)) {
                     $this->removeOXType($types);
                 }
-                $this->_loadObject(InboxFactory::class)->create()->parse(array_reverse($feedData));
+                $this->inboxFactory->create()->parse(array_reverse($feedData));
             }
         }
         $this->setLastUpdate();
@@ -169,18 +203,11 @@ class Feed extends AbstractModel
     }
 
     /**
-     * @return Helper
-     */
-    protected function helper(){
-        return $this->_loadObject( Helper::class);
-    }
-
-    /**
      * @return int
      */
     public function getLastUpdate()
     {
-        return (int)$this->helper()->getModuleConfig('admin_notifications/lastcheck');
+        return (int)$this->coreHelper->getModuleConfig('admin_notifications/lastcheck');
     }
 
     /**
@@ -203,7 +230,7 @@ class Feed extends AbstractModel
      */
     public function getFeedData()
     {
-        $curl = $this->_loadObject(CurlFactory::class)->create();
+        $curl = $this->curlFactory->create();
         $curl->setConfig(
             [
                 'timeout' => 2,
@@ -225,43 +252,13 @@ class Feed extends AbstractModel
 
         return $data;
     }
-
-    /**
-     * @param string $object
-     * @return mixed
-     */
-    protected function _loadObject($object)
-    {
-        return $this->_getObjectManager()->get($object);
-    }
-
-    /**
-     * @return ObjectManager
-     */
-    protected function _getObjectManager()
-    {
-        if (!$this->_objectManager) {
-            $this->_objectManager = ObjectManager::getInstance();
-        }
-
-        return $this->_objectManager;
-    }
-
     /**
      * @return string
      */
     protected function getUserAgent()
     {
-        return sprintf("Olegnax: %s/%s (%s)", $this->getProductMetadata()->getName(),
-            $this->getProductMetadata()->getVersion(), $this->getProductMetadata()->getEdition());
-    }
-
-    /**
-     * @return ProductMetadataInterface
-     */
-    protected function getProductMetadata()
-    {
-        return $this->_loadObject(ProductMetadataInterface::class);
+        return sprintf("Olegnax: %s/%s (%s)", $this->productMetadata->getName(),
+            $this->productMetadata->getVersion(), $this->productMetadata->getEdition());
     }
 
     /**
@@ -269,7 +266,7 @@ class Feed extends AbstractModel
      */
     public function getCurrentUrl()
     {
-        return $this->_loadObject(StoreManagerInterface::class)->getStore()->getBaseUrl();
+        return $this->storeManagerInterface->getStore()->getBaseUrl();
     }
 
     /**
@@ -290,13 +287,6 @@ class Feed extends AbstractModel
     private function getScheme()
     {
         return 'https://';
-//        $url = $this->_loadObject(StoreManagerInterface::class)->getStore()->getBaseUrl();
-//        $scheme = parse_url($url, PHP_URL_SCHEME);
-//        if (empty($scheme)) {
-//            $scheme = 'http';
-//        }
-//
-//        return $scheme . '://';
     }
 
     /**
@@ -391,7 +381,7 @@ class Feed extends AbstractModel
      */
     protected function getInstalledExt($vendor = '')
     {
-        $modules = $this->_loadObject(ModuleListInterface::class)->getNames();
+        $modules = $this->moduleListInterface->getNames();
 
         $dispatchResult = new DataObject($modules);
         $modules = $dispatchResult->toArray();
@@ -435,10 +425,10 @@ class Feed extends AbstractModel
      */
     protected function getComposerVersion($moduleName, $type = ComponentRegistrar::MODULE)
     {
-        $path = $this->_loadObject(ComponentRegistrarInterface::class)->getPath($type, $moduleName);
+        $path = $this->componentRegistrarInterface->getPath($type, $moduleName);
 
         if ($path) {
-            $dirReader = $this->_loadObject(ReadFactory::class)->create($path);
+            $dirReader = $this->readFactory->create($path);
 
             if ($dirReader->isExist('composer.json')) {
                 $data = $dirReader->readFile('composer.json');
@@ -491,7 +481,7 @@ class Feed extends AbstractModel
 
         $types = array_unique($types);
         /** @var OXFactory $collection */
-        $collection = $this->_loadObject(OXFactory::class)->create()->addFieldToFilter('ox_type',
+        $collection = $this->oxFactory->create()->addFieldToFilter('ox_type',
             array('in' => $types));
         foreach ($collection as $model) {
             $model->setIsRemove(1)->save()->delete();
@@ -505,7 +495,7 @@ class Feed extends AbstractModel
      */
     public function setLastUpdate()
     {
-        $this->helper()->setModuleConfig('admin_notifications/lastcheck', time());
+        $this->coreHelper->setModuleConfig('admin_notifications/lastcheck', time());
         return $this;
     }
 
@@ -519,7 +509,7 @@ class Feed extends AbstractModel
         }
 
         /** @var ExpiredFactory $collection */
-        $collection = $this->_loadObject(ExpiredFactory::class)->create();
+        $collection = $this->expiredFactory->create();
         foreach ($collection as $model) {
             $model->setIsRemove(1)->save()->delete();
         }
@@ -534,7 +524,7 @@ class Feed extends AbstractModel
      */
     public function getLastRemove()
     {
-        return (int)$this->helper()->getModuleConfig('admin_notifications/lastremove');
+        return (int)$this->coreHelper->getModuleConfig('admin_notifications/lastremove');
     }
 
     /**
@@ -542,7 +532,7 @@ class Feed extends AbstractModel
      */
     public function setLastRemove()
     {
-        $this->helper()->setModuleConfig('admin_notifications/lastremove', time());
+        $this->coreHelper->setModuleConfig('admin_notifications/lastremove', time());
         return $this;
     }
 
@@ -552,7 +542,7 @@ class Feed extends AbstractModel
      */
     private function isItemExists($link)
     {
-        return $this->_loadObject(ExistsFactory::class)->create()->execute($this->escapeString($link));
+        return $this->existsFactory->create()->execute($this->escapeString($link));
     }
 
 }

@@ -12,12 +12,14 @@ use Olegnax\Core\Helper\Helper;
 /** @var Helper $helper */
 $helper = $block->getData('helper');
 $mobile = $helper->isMobileTheme();
-?>
-<script>
-    var OX_MOBILE = <?= $mobile ? 1 : 0 ?>,
-        OX_PHOTOSWIPE = 1,
-        OX_CATALOG_AJAX = <?= !$helper->getSystemValue('athlete2_settings/products_listing/catalog_ajax_add_to_cart') ? 1 : 0 ?>,
-        OX_WAYPOINTS = <?= $helper->getSystemValue('athlete2_settings/general/waypoints') ? 1 : 0 ?>,
-        OX_OWL_DISABLE = <?= !$helper->getModuleConfig('general/owlcarousel') ? 1 : 0 ?>,
-    	OX_OWL_OBS_DISABLE = false;
-</script>
+$scriptString = 'var OX_MOBILE = ' . ($mobile ? 1 : 0 ) .',
+OX_PHOTOSWIPE = 1,
+OX_CATALOG_AJAX = ' . (!$helper->getSystemValue('athlete2_settings/products_listing/catalog_ajax_add_to_cart') ? 1 : 0) .',
+OX_WAYPOINTS = ' . ($helper->getSystemValue('athlete2_settings/general/waypoints') ? 1 : 0) .',
+OX_OWL_DISABLE = ' . (!$helper->getModuleConfig('general/owlcarousel') ? 1 : 0) .',
+OX_OWL_OBS_DISABLE = false;';
+if (isset($secureRenderer)){
+    echo /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $scriptString, false);
+} else{
+    echo /* @noEscape */ '<script>' .  $scriptString . '</script>';
+}

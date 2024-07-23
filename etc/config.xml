@@ -4,8 +4,9 @@
 		<olegnax_core_settings>
 			<general>
 				<lazyload>1</lazyload>
-                                <owlcarousel>1</owlcarousel>
+				<owlcarousel>1</owlcarousel>
+				<defer_assets>1</defer_assets>
 			</general>
-                </olegnax_core_settings>
+		</olegnax_core_settings>
 	</default>
 </config>

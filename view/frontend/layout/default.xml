@@ -7,11 +7,12 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-        <referenceContainer name="head.additional">
-                <block name="ox_core_assets" class="Olegnax\Core\Block\SimpleTemplate" template="Olegnax_Core::assets.phtml"/>
-        </referenceContainer>
 	<body>
+        <referenceContainer name="head.additional">
+			<block name="ox_core_assets" class="Olegnax\Core\Block\SimpleTemplate" template="Olegnax_Core::assets.phtml"/>
+		</referenceContainer>
 		<referenceContainer name="before.body.end">
+			<block ifconfig="olegnax_core_settings/general/defer_assets" class="Magento\Framework\View\Element\Template" name="ox_core_onloadcss" template="Olegnax_Core::onloadcss.phtml"/>
 			<block ifconfig="olegnax_core_settings/general/lazyload" class="Olegnax\Core\Block\SimpleTemplate" name="ox_core_lazy" template="Olegnax_Core::lazy_min.phtml"/>
 		</referenceContainer>
 	</body>

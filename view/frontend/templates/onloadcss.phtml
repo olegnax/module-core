@@ -1,0 +1,10 @@
+<?php 
+$scriptString = <<<SCRIPT
+document.querySelectorAll("link[data-onloadcss]").forEach(oxOnloadLink => {oxOnloadLink.sheet ? (() => {try {oxOnloadLink.sheet.cssRules.length > 0 && (oxOnloadLink.media = "all");} catch (error) {oxOnloadLink.media = "all"}})() : oxOnloadLink.addEventListener("load", () => (oxOnloadLink.media = "all"));});
+SCRIPT;
+?>
+<?php if(isset($secureRenderer)): ?>
+	<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false); ?>
+<?php else: ?>
+	<script nodefer><?= $scriptString ?></script>
+<?php endif;
