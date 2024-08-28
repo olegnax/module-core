@@ -1,6 +1,6 @@
 <script type="text/javascript">
     (function () {
-        function LazyLoad () {
+        function LazyLoad() {
             this.settings = {
                 src: 'data-original',
                 srcset: 'data-originalset',
@@ -12,77 +12,95 @@
                 rootMargin: '0px',
                 threshold: 0,
                 debouncer: 500
-            }
-            this.images = document.querySelectorAll(this.settings.selector)
-            this.observer = null
-            let self = this
-            this.load = (event) => {
-                let image = event.target,
-                    parent = image.parentElement
-                if (image.src == image.getAttribute(this.settings.src)) {
-                    image.classList.remove(self.settings.selectorClass)
-                    parent.classList.remove(self.settings.loadClass)
-                    let _parent = parent.closest('.product-item-photo')
+            };
+            this.images = document.querySelectorAll(this.settings.selector);
+            this.observer = null;
+            let self = this;
+
+            this.load = function(event) {
+                let image = event.target;
+                let parent = image.parentElement;
+
+                if (image.src === image.getAttribute(self.settings.src)) {
+                    image.classList.remove(self.settings.selectorClass);
+                    parent.classList.remove(self.settings.loadClass);
+                    
+                    let _parent = parent.closest('.product-item-photo');
                     if (_parent) {
-                        _parent.classList.remove(self.settings.loadClass)
+                        _parent.classList.remove(self.settings.loadClass);
                     }
-                    image.dispatchEvent(new Event(self.settings.loadEvent))
-                    if (this.observer) {
-                        this.observer.unobserve(image)
+
+                    image.dispatchEvent(new Event(self.settings.loadEvent));
+                    if (self.observer) {
+                        self.observer.unobserve(image);
                     }
                 }
-            }
-            this.destroy = () => {
-                this.observer.disconnect()
-            }
-            this.applyImage = (image) => {
-                let src = image.getAttribute(self.settings.src),
-                    srcset = image.getAttribute(self.settings.srcset)
-                if ('img' === image.tagName.toLowerCase()) {
-                    image.onload = self.load
+            };
+
+            this.destroy = function() {
+                if (self.observer) {
+                    self.observer.disconnect();
+                }
+            };
+
+            this.applyImage = function(image) {
+                let src = image.getAttribute(self.settings.src);
+                let srcset = image.getAttribute(self.settings.srcset);
+
+                if (image.tagName.toLowerCase() === 'img') {
+                    image.onload = self.load;
                     if (src) {
-                        image.src = src
+                        image.src = src;
                     }
                     if (srcset) {
-                        image.srcset = srcset
+                        image.srcset = srcset;
                     }
                 } else {
-                    image.style.backgroundImage = 'url(\'' + src + '\')'
+                    image.style.backgroundImage = 'url(\'' + src + '\')';
                 }
-            }
-            this.init = () => {
-                if (!window.IntersectionObserver) {
-                    return
+            };
+
+            this.init = function() {
+                if (!('IntersectionObserver' in window)) {
+                    return;
                 }
+                
                 try {
-                    this.observer = new IntersectionObserver(function (entries, observer) {
-                        Array.prototype.forEach.call(entries, function (entry) {
+                    self.observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
                             if (entry.isIntersecting) {
-                                self.applyImage(entry.target)
+                                self.applyImage(entry.target);
                             }
-                        })
+                        });
                     }, {
-                        rootMargin: this.settings.rootMargin,
-                        threshold: [this.settings.threshold]
-                    })
-                    Array.prototype.forEach.call(this.images, function (image) {
-                        self.observer.observe(image)
-                    })
+                        rootMargin: self.settings.rootMargin,
+                        threshold: [self.settings.threshold]
+                    });
+
+                    self.images.forEach(function(image) {
+                        self.observer.observe(image);
+                    });
                 } catch (e) {
-                    console.info(e)
+                    console.info(e);
                 }
-            }
-            this.init()
+            };
+
+            this.init();
         }
 
-        window.lazyLoad = function () {
-            return new LazyLoad()
-        }
-    })()
-    document.addEventListener('DOMContentLoaded', function () {
-        lazyLoad()
-    }, false)
-    require(['jquery'], function ($) {
-        $(document.body).on('contentUpdated contentUpdated.oxlazy', lazyLoad)
-    })
+        window.lazyLoad = function() {
+            return new LazyLoad();
+        };
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        lazyLoad();
+    });
+
+    document.body.addEventListener('contentUpdated', function() {
+        lazyLoad();
+    });
+    document.body.addEventListener('contentUpdated.oxlazy', function() {
+        lazyLoad();
+    });
 </script>
