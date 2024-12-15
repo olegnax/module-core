@@ -96,11 +96,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         lazyLoad();
     });
-
     document.body.addEventListener('contentUpdated', function() {
         lazyLoad();
     });
     document.body.addEventListener('contentUpdated.oxlazy', function() {
         lazyLoad();
     });
+    if (typeof require !== 'undefined') {
+        require(['jquery'], function ($) {
+            $(document.body).on('contentUpdated contentUpdated.oxlazy', lazyLoad)
+        })
+    }
 </script>
