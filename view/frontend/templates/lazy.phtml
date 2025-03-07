@@ -19,22 +19,25 @@
 
             this.load = function(event) {
                 let image = event.target;
-                let parent = image.parentElement;
-
                 if (image.src === image.getAttribute(self.settings.src)) {
-                    image.classList.remove(self.settings.selectorClass);
-                    parent.classList.remove(self.settings.loadClass);
-                    
-                    let _parent = parent.closest('.product-item-photo');
-                    if (_parent) {
-                        _parent.classList.remove(self.settings.loadClass);
-                    }
-
-                    image.dispatchEvent(new Event(self.settings.loadEvent));
+                    self.afterImageLoaded(image);
                     if (self.observer) {
                         self.observer.unobserve(image);
                     }
                 }
+            };
+
+            this.afterImageLoaded = function (image) {
+                let parent = image.parentElement;
+                image.classList.remove(self.settings.selectorClass);
+                parent.classList.remove(self.settings.loadClass);
+                
+                let _parent = parent.closest('.product-item-photo');
+                if (_parent) {
+                    _parent.classList.remove(self.settings.loadClass);
+                }
+
+                image.dispatchEvent(new Event(self.settings.loadEvent));
             };
 
             this.destroy = function() {
@@ -61,6 +64,20 @@
             };
 
             this.init = function() {
+                // remove loading for images loaded with browser default loading lazy
+                if ('loading' in HTMLImageElement.prototype) {
+                    const _images = document.querySelectorAll('img[loading="lazy"], img[data-ox-image]');
+                    _images.forEach(function(image) {
+                        if (image.complete) {
+                            self.afterImageLoaded(image);
+                        } else {
+                            image.onload = function () {
+                                self.afterImageLoaded(image);
+                            }
+                        }
+                    });
+                }
+                
                 if (!('IntersectionObserver' in window)) {
                     return;
                 }
