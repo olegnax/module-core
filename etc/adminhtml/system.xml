@@ -22,7 +22,19 @@
 				<field id="owlcarousel" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="12" translate="label"
 					   type="select">
 					<label>Owl Carousel Enabled</label>
-                                        <comment>If disabled, lazy load script and css will not be loaded. As a result Theme and extensions which rely on owl carsouel will not work and drop an error. So disable it only if you decided to not use owl carousel at all and removed all of the theme blocks and widgets which rely on owl carousel script.</comment>
+					<comment>If disabled, lazy load script and css will not be loaded. As a result Theme and extensions which rely on owl carsouel will not work and drop an error. So disable it only if you decided to not use owl carousel at all and removed all of the theme blocks and widgets which rely on owl carousel script.</comment>
+					<frontend_class>on-off-trigger</frontend_class>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="owlcarousel_tiny" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="14" translate="label"
+				type="select">
+					<label>Load Only Core Css for Owl Carousel</label>
+					<frontend_class>on-off-trigger</frontend_class>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="owlcarousel_inline" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="14" translate="label"
+				type="select">
+					<label>Inline Owl Carousel Css</label>
 					<frontend_class>on-off-trigger</frontend_class>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>

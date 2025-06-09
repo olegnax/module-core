@@ -5,6 +5,8 @@
 			<general>
 				<lazyload>1</lazyload>
 				<owlcarousel>1</owlcarousel>
+				<owlcarousel_tiny>0</owlcarousel_tiny>
+				<owlcarousel_inline>0</owlcarousel_inline>
 				<defer_assets>1</defer_assets>
 			</general>
 		</olegnax_core_settings>

@@ -1,4 +1,20 @@
 <?php if ($this->getConfig('olegnax_core_settings/general/owlcarousel')) : ?>
-	<?php $defer = (bool)$this->getConfig('olegnax_core_settings/general/defer_assets'); ?>
-	<link href="<?= $block->getViewFileUrl('Olegnax_Core::owl.carousel/assets/owl.carousel.css'); ?>" <?php echo ($defer ? 'data-onloadcss' : ''); ?> rel="stylesheet" type="text/css" media="<?php echo ($defer ? 'print' : 'all'); ?>" >
-<?php endif; ?>
+	<?php if ($this->getConfig('olegnax_core_settings/general/owlcarousel_inline')) : ?>
+		<?php
+		$styles = <<<STYLE
+.owl-carousel{width:100%;-webkit-tap-highlight-color:transparent;position:relative;z-index:1}.owl-carousel:not(.owl-loaded){display:flex!important;contain:paint}.owl-carousel:not(.owl-loaded) :is(.owl-nav,.owl-dots){opacity:0;visibility:hidden}.owl-carousel .owl-stage{position:relative;touch-action:manipulation;backface-visibility:hidden}.owl-carousel .owl-stage:after{content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0}.owl-carousel .owl-stage-outer{position:relative;contain:paint}.owl-carousel :where(.owl-wrapper,.product-item,.owl-item){backface-visibility:hidden}.owl-carousel .owl-item,.owl-carousel .product-item{position:relative;min-height:1px;float:left;backface-visibility:hidden;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}.owl-carousel .owl-item img,.owl-carousel .product-item img{display:block;width:100%}.owl-carousel .owl-dots.disabled,.owl-carousel .owl-nav.disabled{display:none}.owl-carousel .owl-dot,.owl-carousel .owl-nav .owl-next,.owl-carousel .owl-nav .owl-prev{cursor:pointer;user-select:none}.owl-carousel .owl-nav button.owl-next,.owl-carousel .owl-nav button.owl-prev,.owl-carousel button.owl-dot{background:0 0;color:inherit;border:none;padding:0!important;font:inherit}.owl-carousel.owl-hidden{opacity:0}.owl-carousel.owl-drag .owl-item,.owl-carousel.owl-drag .product-item{touch-action:pan-y;user-select:none}.owl-carousel.owl-grab{cursor:move;cursor:grab}.owl-height{transition:height .5s ease-in-out}.owl-carousel .owl-item .owl-lazy,.owl-carousel .product-item .owl-lazy{opacity:0;transition:opacity .4s}
+STYLE;
+		if (isset($secureRenderer)) {
+			echo /* @noEscape */ $secureRenderer->renderTag('style', [], $styles, false);
+		} else {
+			echo /* @noEscape */ '<style>' .  $styles . '</style>';
+		}
+		?>
+	<?php else: ?>
+		<?php
+		$defer = (bool)$this->getConfig('olegnax_core_settings/general/defer_assets');
+		$filename = $this->getConfig('olegnax_core_settings/general/owlcarousel_tiny') ? 'owl.carousel.tiny.css' : 'owl.carousel.css';
+		?>
+		<link href="<?= $block->getViewFileUrl('Olegnax_Core::owl.carousel/assets/' . $filename); ?>" <?php echo ($defer ? 'data-onloadcss' : ''); ?> rel="stylesheet" type="text/css" media="<?php echo ($defer ? 'print' : 'all'); ?>">
+	<?php endif; ?>
+<?php endif;
