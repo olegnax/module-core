@@ -14,11 +14,20 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Olegnax\Core\Model\Feed;
 use Olegnax\Core\Model\FeedFactory;
+use Olegnax\Core\Model\Feed\FeedConfig;
+use Olegnax\Core\Model\Feed\FeedStatusManager;
 use Psr\Log\LoggerInterface;
 
 class PredispatchAdminActionControllerObserver implements ObserverInterface
 {
-
+    /**
+     * @var FeedConfig
+     */
+    private $feedConfig;
+    /**
+     * @var FeedStatusManager
+     */
+    private $feedStatusManager;
     /**
      * @var FeedFactory
      */
@@ -41,10 +50,14 @@ class PredispatchAdminActionControllerObserver implements ObserverInterface
      */
     public function __construct(
         FeedFactory $feedFactory,
+        FeedStatusManager $feedStatusManager,
+        FeedConfig $feedConfig,
         Session $backendAuthSession,
         LoggerInterface $logger
     ) {
         $this->_feedFactory = $feedFactory;
+        $this->feedStatusManager = $feedStatusManager;
+        $this->feedConfig = $feedConfig;
         $this->_backendAuthSession = $backendAuthSession;
         $this->logger = $logger;
     }
@@ -59,6 +72,9 @@ class PredispatchAdminActionControllerObserver implements ObserverInterface
     public function execute(Observer $observer)
     {
         if ($this->_backendAuthSession->isLoggedIn()) {
+            if ($this->feedConfig->getFrequency() + $this->feedStatusManager->getLastUpdate() > time()) {
+                return;
+            }
             try {
                 $feedModel = $this->_feedFactory->create();
                 /* @var $feedModel Feed */

@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2025 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -10,11 +10,9 @@ namespace Olegnax\Core\Model;
 
 use Exception;
 use Magento\AdminNotification\Model\InboxFactory;
-use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
-use Magento\Framework\Config\ConfigOptionsListConstants;
 use Magento\Framework\DataObject;
 use Magento\Framework\Filesystem\Directory\ReadFactory;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
@@ -23,36 +21,28 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Notification\MessageInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Olegnax\Core\Helper\Helper as CoreHelper; 
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExistsFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\ExpiredFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContent;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContentP;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OXFactory;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxUpdate;
+use Olegnax\Core\Model\Feed\FeedStatusManager;
+use Olegnax\Core\Model\Feed\FeedConfig;
 use SimpleXMLElement;
 
 class Feed extends AbstractModel
 {
 
     /**
-     * @var string
+     * @var FeedStatusManager
      */
-    const FEED_URL = "olegnax.com/extras/products-status/feed.xml";
+    private $feedStatusManager;
     /**
-     * @var integer
+     * @var FeedConfig
      */
-    const FREQUENCY = 24;
-    /**
-     * @var integer
-     */
-    const REMOVE_FREQUENCY = 6;
+    private $feedConfig;
 
-    /**
-     * Feed url
-     *
-     * @var string
-     */
     protected $expiredFactory;
     protected $productMetadata;
     protected $storeManagerInterface;
@@ -61,11 +51,8 @@ class Feed extends AbstractModel
     protected $readFactory;
     protected $oxFactory;
     protected $existsFactory;
-    protected $deploymentConfig;
     protected $inboxFactory;
-    protected $coreHelper;
     protected $curlFactory;
-    protected $_feedUrl;
 
     public function __construct(
         ExpiredFactory $expiredFactory,
@@ -76,10 +63,10 @@ class Feed extends AbstractModel
         ReadFactory $readFactory,
         OXFactory $oxFactory,
         ExistsFactory $existsFactory,
-        DeploymentConfig $deploymentConfig,
         InboxFactory $inboxFactory,
-        coreHelper $coreHelper,
-        CurlFactory $curlFactory
+        CurlFactory $curlFactory,
+        FeedStatusManager $feedStatusManager,
+        FeedConfig $feedConfig
     ) {
         $this->expiredFactory = $expiredFactory;
         $this->productMetadata = $productMetadata;
@@ -89,10 +76,10 @@ class Feed extends AbstractModel
         $this->readFactory = $readFactory;
         $this->oxFactory = $oxFactory;
         $this->existsFactory = $existsFactory;
-        $this->deploymentConfig = $deploymentConfig;
         $this->inboxFactory = $inboxFactory;
-        $this->coreHelper = $coreHelper;
         $this->curlFactory = $curlFactory;
+        $this->feedStatusManager = $feedStatusManager;
+        $this->feedConfig = $feedConfig;
     }
 
     /**
@@ -100,15 +87,11 @@ class Feed extends AbstractModel
      */
     public function checkUpdate()
     {
-        if ($this->getFrequency() + $this->getLastUpdate() > time()) {
-            return $this;
-        }
 
         $feedData = [];
 
         $feedXml = $this->getFeedXml();
-
-        $installDate = strtotime($this->deploymentConfig->get(ConfigOptionsListConstants::CONFIG_PATH_INSTALL_DATE));
+        $installDate = $this->feedStatusManager->getInstallDate();
         $types = [];
 
         if ($feedXml && $feedXml->channel && $feedXml->channel->item) {
@@ -189,25 +172,9 @@ class Feed extends AbstractModel
                 $this->inboxFactory->create()->parse(array_reverse($feedData));
             }
         }
-        $this->setLastUpdate();
+        $this->feedStatusManager->setLastUpdate();
 
         return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getFrequency()
-    {
-        return self::FREQUENCY * 3600;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLastUpdate()
-    {
-        return (int)$this->coreHelper->getModuleConfig('admin_notifications/lastcheck');
     }
 
     /**
@@ -241,7 +208,7 @@ class Feed extends AbstractModel
                 'verifyhost' => false,
             ]
         );
-        $curl->write( Request::METHOD_GET, $this->getFeedUrl(), '1.0');
+        $curl->write( Request::METHOD_GET, $this->feedConfig->getFeedUrl(), '1.0');
         $data = $curl->read();
         if ($data === false || $data === '') {
             return '';
@@ -267,26 +234,6 @@ class Feed extends AbstractModel
     public function getCurrentUrl()
     {
         return $this->storeManagerInterface->getStore()->getBaseUrl();
-    }
-
-    /**
-     * @return string
-     */
-    public function getFeedUrl()
-    {
-        $httpPath = $this->getScheme();
-        if ($this->_feedUrl === null) {
-            $this->_feedUrl = $httpPath . self::FEED_URL;
-        }
-        return $this->_feedUrl;
-    }
-
-    /**
-     * @return string
-     */
-    private function getScheme()
-    {
-        return 'https://';
     }
 
     /**
@@ -493,18 +440,9 @@ class Feed extends AbstractModel
     /**
      * @return $this
      */
-    public function setLastUpdate()
-    {
-        $this->coreHelper->setModuleConfig('admin_notifications/lastcheck', time());
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
     public function removeExpiredItems()
     {
-        if ($this->getLastRemove() + self::REMOVE_FREQUENCY > time()) {
+        if ($this->feedStatusManager->getLastRemove() + $this->feedConfig->getRemoveFrequency() > time()) {
             return $this;
         }
 
@@ -513,28 +451,11 @@ class Feed extends AbstractModel
         foreach ($collection as $model) {
             $model->setIsRemove(1)->save()->delete();
         }
-
-        $this->setLastRemove();
+        $this->feedStatusManager->setLastRemove();
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getLastRemove()
-    {
-        return (int)$this->coreHelper->getModuleConfig('admin_notifications/lastremove');
-    }
-
-    /**
-     * @return $this
-     */
-    public function setLastRemove()
-    {
-        $this->coreHelper->setModuleConfig('admin_notifications/lastremove', time());
-        return $this;
-    }
 
     /**
      * @param SimpleXMLElement $link
