@@ -8,6 +8,7 @@
 				<owlcarousel_tiny>0</owlcarousel_tiny>
 				<owlcarousel_inline>0</owlcarousel_inline>
 				<defer_assets>1</defer_assets>
+				<requirejs_modify>1</requirejs_modify>
 			</general>
 		</olegnax_core_settings>
 	</default>

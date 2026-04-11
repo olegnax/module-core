@@ -22,25 +22,44 @@
 				<field id="owlcarousel" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="12" translate="label"
 					   type="select">
 					<label>Owl Carousel Enabled</label>
-					<comment>If disabled, lazy load script and css will not be loaded. As a result Theme and extensions which rely on owl carsouel will not work and drop an error. So disable it only if you decided to not use owl carousel at all and removed all of the theme blocks and widgets which rely on owl carousel script.</comment>
-					<frontend_class>on-off-trigger</frontend_class>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-				</field>
-				<field id="owlcarousel_tiny" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="14" translate="label"
-				type="select">
-					<label>Load Only Core Css for Owl Carousel</label>
+					<comment><![CDATA[
+						<p>Disabling this prevents the Owl Carousel library and its dependencies from loading.</p>
+						<p><strong>Warning:</strong> Any theme features, widgets, or extensions relying on Owl Carousel will stop functioning and may produce JavaScript console errors.</p>
+						<p>Only disable this if you have completely removed/replaced all carousel-dependent elements or you only use Olegnax modules which do not require owl carousel.</p>
+						<p><strong style="color:red">Required:</strong> You must flush Static View Files cache and possibly redeploy static content after changing this option.</p>
+					]]></comment>
 					<frontend_class>on-off-trigger</frontend_class>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>
 				<field id="owlcarousel_inline" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="14" translate="label"
-				type="select">
+					type="select">
 					<label>Inline Owl Carousel Css</label>
 					<frontend_class>on-off-trigger</frontend_class>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+                        <field id="owlcarousel">1</field>
+                    </depends>
 				</field>
-				<field id="defer_assets" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="14" translate="label"
-				type="select">
-					<label>Defer CSS Assest Enabled</label>
+				<field id="owlcarousel_tiny" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label"
+					type="select">
+					<label>Load Only Core Css for Owl Carousel</label>
+					<frontend_class>on-off-trigger</frontend_class>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+                        <field id="owlcarousel">1</field>
+						<field id="owlcarousel_inline">0</field>
+                    </depends>
+				</field>
+				<field id="defer_assets" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label"
+					type="select">
+					<label>Defer CSS Assets - Enabled</label>
+					<frontend_class>on-off-trigger</frontend_class>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="requirejs_modify" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label"
+					type="select">
+					<label>Allow RequireJs modification</label>
+					<comment>Some of the options in Modules (e.g.: "Owl Carousel Enabled") will modify requirejs configs so if you see a possibly related issue try to disable this option.</comment>
 					<frontend_class>on-off-trigger</frontend_class>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>
