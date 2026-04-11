@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2026 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -12,26 +12,33 @@ use Exception;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Olegnax\Core\Model\Feed;
-use Olegnax\Core\Model\FeedFactory;
+use Olegnax\Core\Model\Feed\FeedSynchronizer;
+use Olegnax\Core\Model\Feed\FeedCleaner;
 use Olegnax\Core\Model\Feed\FeedConfig;
 use Olegnax\Core\Model\Feed\FeedStatusManager;
 use Psr\Log\LoggerInterface;
 
-class PredispatchAdminActionControllerObserver implements ObserverInterface
+class BackendUserLoginSuccessObserver implements ObserverInterface
 {
     /**
      * @var FeedConfig
      */
     private $feedConfig;
+
     /**
      * @var FeedStatusManager
      */
     private $feedStatusManager;
+
     /**
-     * @var FeedFactory
+     * @var FeedSynchronizer
      */
-    protected $_feedFactory;
+    private $feedSynchronizer;
+
+    /**
+     * @var FeedCleaner
+     */
+    private $feedCleaner;
 
     /**
      * @var Session
@@ -43,19 +50,16 @@ class PredispatchAdminActionControllerObserver implements ObserverInterface
      */
     private $logger;
 
-    /**
-     * @param FeedFactory $feedFactory
-     * @param Session $backendAuthSession
-     * @param LoggerInterface $logger
-     */
     public function __construct(
-        FeedFactory $feedFactory,
+        FeedSynchronizer $feedSynchronizer,
+        FeedCleaner $feedCleaner,
         FeedStatusManager $feedStatusManager,
         FeedConfig $feedConfig,
         Session $backendAuthSession,
         LoggerInterface $logger
     ) {
-        $this->_feedFactory = $feedFactory;
+        $this->feedSynchronizer = $feedSynchronizer;
+        $this->feedCleaner = $feedCleaner;
         $this->feedStatusManager = $feedStatusManager;
         $this->feedConfig = $feedConfig;
         $this->_backendAuthSession = $backendAuthSession;
@@ -63,7 +67,7 @@ class PredispatchAdminActionControllerObserver implements ObserverInterface
     }
 
     /**
-     * Predispatch admin action controller
+     * Executed on backend user login success
      *
      * @param Observer $observer
      * @return void
@@ -71,19 +75,14 @@ class PredispatchAdminActionControllerObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        if ($this->_backendAuthSession->isLoggedIn()) {
-            if ($this->feedConfig->getFrequency() + $this->feedStatusManager->getLastUpdate() > time()) {
-                return;
-            }
-            try {
-                $feedModel = $this->_feedFactory->create();
-                /* @var $feedModel Feed */
-                $feedModel->checkUpdate();
-                $feedModel->removeExpiredItems();
-            } catch (Exception $exception) {
-                $this->logger->critical($exception);
-            }
+        if ($this->feedConfig->getFrequency() + $this->feedStatusManager->getLastUpdate() > time()) {
+            return;
+        }
+        try {
+            $this->feedSynchronizer->sync();
+            $this->feedCleaner->removeExpiredItems();
+        } catch (Exception $exception) {
+            $this->logger->critical($exception);
         }
     }
-
 }

@@ -4,7 +4,7 @@ namespace Olegnax\Core\Model\Feed;
 
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Config\ConfigOptionsListConstants;
-use Olegnax\Core\Helper\Helper as CoreHelper;
+use Magento\Framework\FlagManager;
 
 class FeedStatusManager
 {
@@ -15,22 +15,21 @@ class FeedStatusManager
     private $deploymentConfig;
 
     /**
-     * @var CoreHelper
+     * @var FlagManager
      */
-    private $coreHelper;
+    private $flagManager;
 
     /**
      * FeedConfig constructor.
      *
      * @param DeploymentConfig $deploymentConfig
-     * @param CoreHelper $coreHelper
+     * @param FlagManager $flagManager
      */
-    public function __construct(DeploymentConfig $deploymentConfig, CoreHelper $coreHelper)
+    public function __construct(DeploymentConfig $deploymentConfig, FlagManager $flagManager)
     {
         $this->deploymentConfig = $deploymentConfig;
-        $this->coreHelper = $coreHelper;
+        $this->flagManager = $flagManager;
     }
-
 
     /**
      * Get the last update timestamp.
@@ -39,7 +38,7 @@ class FeedStatusManager
      */
     public function getLastUpdate()
     {
-        return (int)$this->coreHelper->getModuleConfig('admin_notifications/lastcheck');
+        return (int)$this->flagManager->getFlagData('olegnax_core_admin_notifications_lastcheck');
     }
 
     /**
@@ -49,7 +48,7 @@ class FeedStatusManager
      */
     public function setLastUpdate()
     {
-        $this->coreHelper->setModuleConfig('admin_notifications/lastcheck', time());
+        $this->flagManager->saveFlag('olegnax_core_admin_notifications_lastcheck', time());
     }
 
     /**
@@ -69,7 +68,7 @@ class FeedStatusManager
      */
     public function getLastRemove()
     {
-        return (int)$this->coreHelper->getModuleConfig('admin_notifications/lastremove');
+        return (int)$this->flagManager->getFlagData('olegnax_core_admin_notifications_lastremove');
     }
 
     /**
@@ -79,6 +78,6 @@ class FeedStatusManager
      */
     public function setLastRemove()
     {
-        $this->coreHelper->setModuleConfig('admin_notifications/lastremove', time());
+        $this->flagManager->saveFlag('olegnax_core_admin_notifications_lastremove', time());
     }
 }
