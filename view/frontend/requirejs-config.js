@@ -7,8 +7,3 @@ var config = {
         'owl.carousel': {deps: ['jquery', 'jquery-ui-modules/widget']}
     }
 };
-if(window?.OX_OWL_DISABLE){
-    delete config.paths['owl.carousel'];
-    delete config.paths['OXowlCarousel'];
-    delete config.shim['owl.carousel'];
-}

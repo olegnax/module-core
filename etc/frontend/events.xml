@@ -1,15 +1,7 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Copyright © 2023 Olegnax. All rights reserved.
- *
- */
--->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="view_block_abstract_to_html_after">
-        <observer
-                name="olegnax_core_observer_frontend_view_blockabstracttohtmlafter_view_block_abstract_to_html_after"
-                instance="Olegnax\Core\Observer\Frontend\View\BlockAbstractToHtmlAfter"/>
-    </event>
+        <event name="olegnax_core_requirejs_config">
+                <observer name="olegnax_core_requirejs_configs_remove" instance="Olegnax\Core\Observer\RemoveRequireJsConfigs" />
+        </event>
 </config>
