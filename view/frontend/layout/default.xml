@@ -13,7 +13,7 @@
 		</referenceContainer>
 		<referenceContainer name="before.body.end">
 			<block ifconfig="olegnax_core_settings/general/defer_assets" class="Magento\Framework\View\Element\Template" name="ox_core_onloadcss" template="Olegnax_Core::onloadcss.phtml"/>
-			<block ifconfig="olegnax_core_settings/general/lazyload" class="Olegnax\Core\Block\SimpleTemplate" name="ox_core_lazy" template="Olegnax_Core::lazy_min.phtml"/>
+			<block ifconfig="olegnax_core_settings/general/lazyload" class="Magento\Framework\View\Element\Template" name="ox_core_lazy" template="Olegnax_Core::lazy_min.phtml"/>
 		</referenceContainer>
 	</body>
 </page>
