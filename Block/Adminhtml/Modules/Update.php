@@ -42,9 +42,9 @@ class Update extends Template
     }
 
     /**
-     * Forsed update Data
+     * Forced update Data
      */
-    public function ForsedUpdate()
+    public function ForcedUpdate()
     {
         $this->helper->getData(true);
     }
