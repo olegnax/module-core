@@ -1,8 +1,5 @@
 <?php
-
-
 namespace Olegnax\Core\Helper;
-
 
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;

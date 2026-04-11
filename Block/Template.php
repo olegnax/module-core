@@ -2,23 +2,18 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2026 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
 namespace Olegnax\Core\Block;
 
-use Magento\Customer\Model\Form;
-use Magento\Store\Model\ScopeInterface;
 use Olegnax\Core\Helper\Helper as HelperHelper;
 use Olegnax\Core\Helper\ProductImage as HelperProductImage;
 
 abstract class Template extends SimpleTemplate
 {
     const CHILD_TEMPLATE = ChildTemplate::class;
-
-
-    // Helper Product Image //
 
     public function getImage(
         $product,
@@ -81,39 +76,49 @@ abstract class Template extends SimpleTemplate
     {
         return $this->getHelperProductImage()->getUrlResizedImage($product, $image, $size, $properties);
     }
-
+	/**
+	 * @deprecated version 1.4.0.0
+	 */
     public function isLoggedIn()
     {
         return $this->getHelper()->isLoggedIn();
     }
 
-    // Helper Helper //
-
+	/**
+	 * @deprecated version 1.4.0.0
+	 */
     public function getHelper()
     {
         return $this->_loadObject(HelperHelper::class);
     }
-
+	/**
+	 * @deprecated version 1.4.0.0 
+     * use Customer view model instead
+	 */
     public function getWishlistCount()
     {
         return $this->getHelper()->getWishlistCount();
     }
-
+	/**
+	 * @deprecated version 1.4.0.0 
+     * use Customer view model instead
+	 */
     public function getCompareListUrl()
     {
         return $this->getHelper()->getCompareListUrl();
     }
-
+	/**
+	 * @deprecated version 1.4.0.0 
+     * use Customer view model instead
+	 */
     function getCompareListCount()
     {
         return $this->getHelper()->getCompareListCount();
     }
-
-    public function isAutocompleteDisabled()
-    {
-        return (bool)!$this->getSystemValue(Form::XML_PATH_ENABLE_AUTOCOMPLETE);
-    }
-
+	/**
+	 * @deprecated version 1.4.0.0
+     * use CmsProcessor view model instead
+	 */
     public function getBlockTemplateProcessor($content = '')
     {
         if (empty($content) || !is_string($content)) {
@@ -121,7 +126,11 @@ abstract class Template extends SimpleTemplate
         }
         return $this->getHelper()->getBlockTemplateProcessor($content);
     }
-
+    
+	/**
+	 * @deprecated version 1.4.0.0
+     * use UrlProvider view model instead
+	 */
     public function getBaseUrl()
     {
         return $this->getHelper()->getBaseUrl();

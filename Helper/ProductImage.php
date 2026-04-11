@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2026 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -50,7 +50,10 @@ class ProductImage extends AbstractHelper
      * @var string
      */
     protected $_magentoVersion;
-
+    /**
+     * @var ProductMetadataInterface
+     */
+    protected $productMetadata;
     /**
      * ProductImage constructor.
      *
@@ -58,16 +61,19 @@ class ProductImage extends AbstractHelper
      * @param Image $imageHelper
      * @param ConfigInterface $viewConfig
      * @param ParamsBuilder $imageParamsBuilder
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         Context $context,
         Image $imageHelper,
         ConfigInterface $viewConfig,
-        ParamsBuilder $imageParamsBuilder
+        ParamsBuilder $imageParamsBuilder,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->imageHelper = $imageHelper;
         $this->viewConfig = $viewConfig;
         $this->imageParamsBuilder = $imageParamsBuilder;
+        $this->productMetadata = $productMetadata;
         parent::__construct($context);
     }
 
@@ -326,7 +332,7 @@ class ProductImage extends AbstractHelper
     private function getMagentoVersion()
     {
         if (!$this->_magentoVersion) {
-            $this->_magentoVersion = ObjectManager::getInstance()->get(ProductMetadataInterface::class)->getVersion();
+            $this->_magentoVersion = $this->productMetadata->getVersion();
         }
 
         return $this->_magentoVersion;

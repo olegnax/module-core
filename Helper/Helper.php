@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2026 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -11,7 +11,6 @@ namespace Olegnax\Core\Helper;
 use Exception;
 use Magento\Catalog\Helper\Product\Compare;
 use Magento\Cms\Model\Template\FilterProvider;
-use Magento\Customer\Model\Session;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Cache\Frontend\Pool;
 use Magento\Framework\App\Cache\TypeListInterface;
@@ -28,12 +27,12 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Wishlist\Helper\Data;
 use Olegnax\Core\Block\ChildTemplate;
+use Magento\Framework\App\Http\Context as HttpContext;
+use Magento\Customer\Model\Context as CustomerContext;
 use Psr\Log\LoggerInterface;
 
 class Helper extends AbstractHelper
 {
-
-
     const XML_PATH_CORE_LAZY = 'olegnax_core_settings/general/lazyload';
     const CONFIG_MODULE = 'olegnax_core_settings';
     const CHILD_TEMPLATE = ChildTemplate::class;
@@ -113,6 +112,7 @@ class Helper extends AbstractHelper
     }
 
     /**
+	 * @deprecated version 1.4.0.0, use StoreInfo view model
      * @return string
      */
     public function getThemeCode()
@@ -122,6 +122,7 @@ class Helper extends AbstractHelper
         return $appState->getDesignTheme()->getCode();
     }
     /**
+	 * @deprecated version 1.4.0.0, use StoreInfo view model
      * @return bool
      */
     public function isMobileTheme()
@@ -279,18 +280,27 @@ class Helper extends AbstractHelper
 
         return $content;
     }
-
-    public function isLoggedIn()
+	/**
+	 * @deprecated version 1.4.0.0, use Customer view model
+	 *
+	 * @return boolean
+	 */
+	public function isLoggedIn()
     {
-        return $this->_loadObject(Session::class)->isLoggedIn();
+        return (bool)$this->_loadObject(HttpContext::class)->getValue(CustomerContext::CONTEXT_AUTH);
     }
-
+	/**
+	 * @deprecated version 1.4.0.0, use Customer view model
+	 *
+	 * @return boolean
+	 */
     public function getWishlistCount()
     {
         return $this->_loadObject(Data::class)->getItemCount();
     }
 
     /**
+	 * @deprecated version 1.4.0.0, use StoreInfo view model
      * Get Product version
      *
      * @return string
@@ -301,6 +311,7 @@ class Helper extends AbstractHelper
     }
 
     /**
+	 * @deprecated version 1.4.0.0, use Customer view model
      * @param string $version
      * @param string $operator
      * @return bool
@@ -317,22 +328,31 @@ class Helper extends AbstractHelper
         return $this->getVersionCompare('2.3.2');
     }
 
-
+    /**
+	 * @deprecated version 1.4.0.0, use Customer view model
+	 * @deprecated version 1.4.0.0
+     */
     public function getCompareListUrl()
     {
         return $this->_loadObject(Compare::class)->getListUrl();
     }
-
+    /**
+	 * @deprecated version 1.4.0.0, use Customer view model
+     */
     public function getCompareListCount()
     {
         return $this->_loadObject(Compare::class)->getItemCount();
     }
-
+    /**
+	 * @deprecated version 1.4.0.0, use UrlProvider view model
+     */
     public function getBaseUrl($type = UrlInterface::URL_TYPE_LINK, $secure = null)
     {
         return $this->getStore()->getBaseUrl($type, $secure);
     }
-
+    /**
+	 * @deprecated version 1.4.0.0
+     */
     public function getStore()
     {
         /** @var StoreManagerInterface $storeManager */
@@ -379,7 +399,9 @@ class Helper extends AbstractHelper
 
 		return FALSE;
     }
-
+    /**
+	 * @deprecated version 1.4.0.0, use CmsProcessor view model
+     */
     public function getBlockTemplateProcessor($content = '')
     {
         if (empty($content) || !is_string($content)) {
@@ -388,22 +410,25 @@ class Helper extends AbstractHelper
         $blockFilter = $this->_loadObject(FilterProvider::class)->getBlockFilter();
         return $blockFilter->filter(trim($content));
     }
-
+    
+    /**
+	 * @deprecated version 1.4.0.0, use UrlProvider view model
+     */
     public function getUrl($route = '', $params = [])
     {
-        /** @var UrlInterface $urlBuilder */
-        $urlBuilder = $this->_loadObject(UrlInterface::class);
-        return $urlBuilder->getUrl($route, $params);
+        return $this->_urlBuilder->getUrl($route, $params);
     }
-
+    /**
+	 * @deprecated version 1.4.0.0, use UrlProvider view model
+     */
     public function isHomePage()
     {
-        $currentUrl = $this->getUrl('', ['_current' => true]);
-        $urlRewrite = $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
-        return $currentUrl == $urlRewrite;
+        return $this->_request->getFullActionName() === 'cms_index_index';
     }
 
-
+    /**
+	 * @deprecated version 1.4.0.0, use Olegnax\Core\Model\Cache\CacheManager
+     */
     public function clearCache()
     {
         /** @var TypeListInterface $cacheTypeList */
@@ -439,7 +464,10 @@ class Helper extends AbstractHelper
 
     public function log($level, $plugin, $message, array $context = [])
     {
-        $message = sprintf('%s: %s', $plugin, trim($message));
+        if(empty($message)){
+            return;
+        }
+        $message = sprintf('%s: %s', $plugin, trim((string)$message));
         $this->getLogger()->log($level, $message, $context);
     }
 
