@@ -210,8 +210,8 @@ class ModuleInfo extends Helper
                     $this->productMetadata->getEdition()
                 ),
                 'referer' => $this->getSystemDefaultValue('web/unsecure/base_url'),
-                'verifypeer' => 0,
-                'verifyhost' => 0,
+                'verifypeer' => 1,
+                'verifyhost' => 2,
             ]
         );
         $curl->write(Request::METHOD_GET, $this->getModuleUrl());
