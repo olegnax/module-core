@@ -29,7 +29,7 @@ class NoticeContent extends Notice
     }
 
     /**
-     * @return OxContentFactory
+     * @return \Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxContent|null
      */
     protected function loadColection()
     {

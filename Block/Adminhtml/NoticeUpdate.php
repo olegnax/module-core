@@ -34,7 +34,7 @@ class NoticeUpdate extends Notice
     }
 
     /**
-     * @return string
+     * @return array
      */
     protected function getColection()
     {
