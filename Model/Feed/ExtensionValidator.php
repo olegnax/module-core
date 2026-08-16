@@ -140,7 +140,7 @@ class ExtensionValidator
     /**
      * @param string $moduleName
      * @param string $version
-     * @return string|null
+     * @return int|null
      */
     public function validateVersion($moduleName, $version)
     {
