@@ -8,13 +8,13 @@
 
 namespace Olegnax\Core\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * @api
  * @since 100.0.2
  */
-class Yesno implements ArrayInterface
+class Yesno implements OptionSourceInterface
 {
     /**
      * Options getter
