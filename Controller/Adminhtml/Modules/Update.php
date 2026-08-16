@@ -64,6 +64,7 @@ class Update extends Action implements HttpGetActionInterface
      */
     public function execute()
     {
+        /** @var Page $resultPage */
         $resultPage = $this->resultPageFactory->create();
         $this->initPage($resultPage);
         $resultPage->getConfig()->getTitle()->prepend(__('Olegnax Modules'));
