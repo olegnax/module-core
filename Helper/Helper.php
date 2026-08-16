@@ -91,14 +91,18 @@ class Helper extends AbstractHelper
     public function setSystemValue($path, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
     {
         $result = $this->_loadObject(WriterInterface::class)->save($path, $value, $scope, $scopeId);
-        $this->scopeConfig->clean();
+        if ($this->scopeConfig instanceof \Magento\Framework\App\Config\ReinitableConfigInterface) {
+            $this->scopeConfig->reinit();
+        }
         return $result;
     }
 
     public function deleteSystemValue($path, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
     {
         $result = $this->_loadObject(WriterInterface::class)->delete($path, $scope, $scopeId);
-        $this->scopeConfig->clean();
+        if ($this->scopeConfig instanceof \Magento\Framework\App\Config\ReinitableConfigInterface) {
+            $this->scopeConfig->reinit();
+        }
         return $result;
     }
 
@@ -369,15 +373,15 @@ class Helper extends AbstractHelper
 					 . "jig\s browser|hiptop|^ucweb|^benq|haier|^lct|opera\s*mobi|opera\*mini|320x320|240x320|176x220"
 					 . ")/i";
 
-		if (preg_match($regex_match, strtolower((string)$_SERVER['HTTP_USER_AGENT']))) {
+		if (preg_match($regex_match, strtolower((string)($_SERVER['HTTP_USER_AGENT'] ?? '')))) {
 			return TRUE;
 		}
 
-		if ((strpos(strtolower((string)$_SERVER['HTTP_ACCEPT']),'application/vnd.wap.xhtml+xml') > 0) or ((isset($_SERVER['HTTP_X_WAP_PROFILE']) or isset($_SERVER['HTTP_PROFILE'])))) {
+		if ((strpos(strtolower((string)($_SERVER['HTTP_ACCEPT'] ?? '')),'application/vnd.wap.xhtml+xml') > 0) or ((isset($_SERVER['HTTP_X_WAP_PROFILE']) or isset($_SERVER['HTTP_PROFILE'])))) {
 			return TRUE;
 		}
 
-		$mobile_ua = strtolower(substr($_SERVER['HTTP_USER_AGENT'], 0, 4));
+		$mobile_ua = strtolower(substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 4));
 		$mobile_agents = array(
 			'w3c ','acs-','alav','alca','amoi','audi','avan','benq','bird','blac',
 			'blaz','brew','cell','cldc','cmd-','dang','doco','eric','hipt','inno',
@@ -423,7 +427,10 @@ class Helper extends AbstractHelper
      */
     public function isHomePage()
     {
-        return $this->_request->getFullActionName() === 'cms_index_index';
+        if ($this->_request instanceof \Magento\Framework\App\Request\Http) {
+            return $this->_request->getFullActionName() === 'cms_index_index';
+        }
+        return false;
     }
 
     /**

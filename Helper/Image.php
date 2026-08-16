@@ -81,7 +81,7 @@ class Image extends AbstractHelper
      */
     protected $_destinationSubdir;
     /**
-     * @var WriteInterface
+     * @var \Magento\Framework\Filesystem\Directory\ReadInterface
      */
     protected $_mediaDirectory;
 
@@ -206,16 +206,16 @@ class Image extends AbstractHelper
                 $newHeight = round($_imageSrcWidth / $_ratio);
                 $deltHeight = $_imageSrcHeight - $newHeight;
 
-                $_deltHeight = floor($deltHeight / 2);
-                $__deltHeight = $deltHeight % 2;
+                $_deltHeight = (int)floor($deltHeight / 2);
+                $__deltHeight = (int)($deltHeight % 2);
 
                 $this->getImageProcessor()->crop($_deltHeight + $__deltHeight, 0, 0, $_deltHeight);
             } elseif (1 < $_imageSrcRatio) {
                 $newWidth = round($_imageSrcHeight * $_ratio);
                 $deltWidth = $_imageSrcWidth - $newWidth;
 
-                $_deltWidth = floor($deltWidth / 2);
-                $__deltWidth = $deltWidth % 2;
+                $_deltWidth = (int)floor($deltWidth / 2);
+                $__deltWidth = (int)($deltWidth % 2);
 
                 $this->getImageProcessor()->crop(0, $_deltWidth + $__deltWidth, $_deltWidth, 0);
             }
@@ -325,7 +325,7 @@ class Image extends AbstractHelper
     }
 
     /**
-     * @param int $width
+     * @param int|null $width
      *
      * @return Image
      */
@@ -370,7 +370,7 @@ class Image extends AbstractHelper
     }
 
     /**
-     * @param int $height
+     * @param int|null $height
      *
      * @return $this
      */
