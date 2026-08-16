@@ -139,7 +139,7 @@ class NoticeUpdate extends Notice
         $dispatchResult = new DataObject($modules);
         $modules = $dispatchResult->toArray();
 
-        if (!empty($filter)) {
+        if (!empty($vendor)) {
             $_modules = [];
             foreach ($modules as $module) {
                 $_module = explode('_', $module);
