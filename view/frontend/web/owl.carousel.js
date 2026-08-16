@@ -1,7 +1,6 @@
 define([
     'jquery',
     'jquery-ui-modules/widget',
-    'jquery-ui-modules/core',
     'owl.carousel',
 ], function ($) {
     'use strict';
