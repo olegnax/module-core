@@ -10,6 +10,7 @@ namespace Olegnax\Core\Model\Feed;
 
 use Exception;
 use Magento\AdminNotification\Model\InboxFactory;
+use Magento\Framework\Escaper;
 use Magento\Framework\Lock\LockManagerInterface;
 use Magento\Framework\Notification\MessageInterface;
 use Olegnax\Core\Model\Feed\FeedStatusManager;
@@ -59,6 +60,11 @@ class FeedSynchronizer
      */
     private $logger;
 
+    /**
+     * @var Escaper
+     */
+    private $escaper;
+
     public function __construct(
         FeedStatusManager $feedStatusManager,
         FeedDataProvider $feedDataProvider,
@@ -66,7 +72,8 @@ class FeedSynchronizer
         FeedCleaner $feedCleaner,
         InboxFactory $inboxFactory,
         LoggerInterface $logger,
-        LockManagerInterface $lockManager
+        LockManagerInterface $lockManager,
+        ?Escaper $escaper = null
     ) {
         $this->feedStatusManager = $feedStatusManager;
         $this->feedDataProvider = $feedDataProvider;
@@ -75,6 +82,7 @@ class FeedSynchronizer
         $this->inboxFactory = $inboxFactory;
         $this->logger = $logger;
         $this->lockManager = $lockManager;
+        $this->escaper = $escaper ?: \Magento\Framework\App\ObjectManager::getInstance()->get(Escaper::class);
     }
 
     /**
@@ -166,8 +174,8 @@ class FeedSynchronizer
             'title' => $this->escapeString($item->title),
             'description' => $this->escapeString($item->description),
             'url' => $this->escapeString($item->link),
-            'ox_content' => (string)$item->content,
-            'ox_image' => (string)$item->image,
+            'ox_content' => $this->sanitizeHtml($item->content),
+            'ox_image' => $this->escapeString($item->image),
             'ox_type' => $type,
             'ox_validate' => json_encode($validate),
             'isOX' => 1,
@@ -231,6 +239,20 @@ class FeedSynchronizer
      */
     private function escapeString(SimpleXMLElement $data)
     {
-        return htmlspecialchars((string)$data);
+        return $this->escaper->escapeHtml((string)$data);
+    }
+
+    /**
+     * @param SimpleXMLElement $data
+     * @return string
+     */
+    private function sanitizeHtml(SimpleXMLElement $data)
+    {
+        $content = (string)$data;
+        if (empty($content)) {
+            return '';
+        }
+        $allowedTags = ['a', 'b', 'i', 'strong', 'em', 'p', 'span', 'ul', 'ol', 'li', 'br', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+        return $this->escaper->escapeHtml($content, $allowedTags);
     }
 }

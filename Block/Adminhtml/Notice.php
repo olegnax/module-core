@@ -20,6 +20,12 @@ class Notice extends Template
     {
         $contents = $this->getColection();
         $content = $this->itemSelection($contents);
+        if (!empty($content)) {
+            $content = $this->escapeHtml(
+                $content,
+                ['a', 'b', 'i', 'strong', 'em', 'p', 'span', 'ul', 'ol', 'li', 'br', 'div', 'h1', 'h2', 'h3', 'h4']
+            );
+        }
 
         return $content;
     }
