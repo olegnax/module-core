@@ -2,7 +2,7 @@
 /**
  * @author      Olegnax
  * @package     Olegnax_Core
- * @copyright   Copyright (c) 2023 Olegnax (http://olegnax.com/). All rights reserved.
+ * @copyright   Copyright (c) 2026 Olegnax (http://olegnax.com/). All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -14,8 +14,8 @@ class OX extends Collection
 {
     protected function _initSelect()
     {
-        return parent::_initSelect()
-            ->addFieldToFilter('isOX', 1);
+        parent::_initSelect();
+        $this->addFieldToFilter('isOX', 1);
     }
 
 }

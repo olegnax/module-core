@@ -15,8 +15,8 @@ class OxNews extends OX
 
     protected function _initSelect()
     {
-        return parent::_initSelect()
-            ->addFilter('is_remove', 0)
+        parent::_initSelect();
+        $this->addFilter('is_remove', 0)
             ->addFilter('is_read', 0)
             ->addFieldToFilter('severity', ['gteq' => MessageInterface::SEVERITY_CRITICAL])
             ->setOrder('date_added')

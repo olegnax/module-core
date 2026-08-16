@@ -15,8 +15,8 @@ class OxUpdate extends OX
 
     protected function _initSelect()
     {
-        return parent::_initSelect()
-            ->addFieldToFilter('ox_type', self::TYPE_UPDATE)
+        parent::_initSelect();
+        $this->addFieldToFilter('ox_type', self::TYPE_UPDATE)
             ->setOrder('date_added');
     }
 

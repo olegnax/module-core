@@ -14,8 +14,8 @@ class OxContentP extends OX
 
     protected function _initSelect()
     {
-        return parent::_initSelect()
-            ->addFilter('is_remove', 1)
+        parent::_initSelect();
+        $this->addFilter('is_remove', 1)
             ->addFieldToFilter('severity', self::TYPE_CONTENT);
     }
 

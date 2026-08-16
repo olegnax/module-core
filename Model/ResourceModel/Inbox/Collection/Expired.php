@@ -13,9 +13,8 @@ class Expired extends OX
 
     protected function _initSelect()
     {
-        return parent::_initSelect()
-            ->addFieldToFilter('is_remove', 0)
-
+        parent::_initSelect();
+        $this->addFieldToFilter('is_remove', 0)
             ->addFieldToFilter('date_expire', ['lt' => date('Y-m-d H:i:s')]);
     }
 
