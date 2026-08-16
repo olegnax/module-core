@@ -11,6 +11,11 @@ namespace Olegnax\Core\Block\Adminhtml;
 use Magento\Framework\View\Element\Template\Context;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxNewsFactory;
 
+/**
+ * Class NoticeNews
+ *
+ * @api
+ */
 class NoticeNews extends Notice
 {
     public function __construct(

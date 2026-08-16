@@ -11,6 +11,12 @@ namespace Olegnax\Core\Block;
 use Olegnax\Core\Helper\Helper as HelperHelper;
 use Olegnax\Core\Helper\ProductImage as HelperProductImage;
 
+/**
+ * Class SimpleTemplate
+ *
+ * @api
+ */
+
 abstract class Template extends SimpleTemplate
 {
     const CHILD_TEMPLATE = ChildTemplate::class;

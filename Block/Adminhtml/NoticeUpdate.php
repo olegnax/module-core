@@ -17,6 +17,11 @@ use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\View\Element\Template\Context;
 use Olegnax\Core\Model\ResourceModel\Inbox\Collection\OxUpdateFactory;
 
+/**
+ * Class NoticeUpdate
+ *
+ * @api
+ */
 class NoticeUpdate extends Notice
 {
     public function __construct(

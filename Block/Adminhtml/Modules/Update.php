@@ -13,7 +13,9 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\DeploymentConfig;
 use Olegnax\Core\Helper\ModuleInfo;
 
-/** @noinspection ClassNameCollisionInspection */
+/** @noinspection ClassNameCollisionInspection
+ * @api
+ */
 
 class Update extends Template
 {

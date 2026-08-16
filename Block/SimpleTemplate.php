@@ -15,6 +15,11 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Http\Context as HttpContext;
 use Magento\Customer\Model\Context as CustomerContext;
 
+/**
+ * Class SimpleTemplate
+ *
+ * @api
+ */
 class SimpleTemplate extends \Magento\Framework\View\Element\Template
 {
 	/**
