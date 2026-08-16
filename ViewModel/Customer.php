@@ -26,7 +26,7 @@ class Customer implements ArgumentInterface
      */
     protected $compareHelper;
     /**
-     * @var CustomerContext
+     * @var HttpContext
      */
     protected $httpContext;
 
