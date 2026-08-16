@@ -19,6 +19,8 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Config\View;
 use Magento\Framework\View\ConfigInterface;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Description of Image
@@ -99,11 +101,11 @@ class ProductImage extends AbstractHelper
             return $this->getImage($product, $imageId, self::TEMPLATE, $attributes, $properties);
         }
 
-        $image = $this->_getImage($product, $imageId, $properties)->getUrl();
+        $image = $this->prepareImageUrl($this->_getImage($product, $imageId, $properties)->getUrl(), $product);
         $imageMiscParams = $this->getImageParams($imageId);
         $image_hoverMiscParams = $this->getImageParams($imageIdHover);
 
-        $image_hover = $this->resizeImage(
+        $image_hover = $this->prepareImageUrl($this->resizeImage(
             $product,
             $imageIdHover,
             [
@@ -111,7 +113,7 @@ class ProductImage extends AbstractHelper
                 $imageMiscParams['image_height'],
             ],
             $properties
-        )->getUrl();
+        )->getUrl(), $product);
 
         $data = [
             'data' => [
@@ -158,7 +160,7 @@ class ProductImage extends AbstractHelper
     }
 
     /**
-     * @param int $imageId
+     * @param string $imageId
      *
      * @return array
      */
@@ -235,7 +237,7 @@ class ProductImage extends AbstractHelper
                 'product_id' => $product->getId(),
                 'product' => $product,
                 'image_id' => $imageId,
-                'image_url' => $image->getUrl(),
+                'image_url' => $this->prepareImageUrl($image->getUrl(), $product),
                 'label' => $this->getLabel($product, $imageMiscParams['image_type']),
                 'width' => $imageMiscParams['image_width'],
                 'height' => $imageMiscParams['image_height'],
@@ -398,7 +400,7 @@ class ProductImage extends AbstractHelper
      * @param string $imageId
      * @param string $imageId_hover
      * @param array|int $size
-     * @param string $template
+     * @param string|array $template
      * @param array $attributes
      * @param array $properties
      *
@@ -449,8 +451,8 @@ class ProductImage extends AbstractHelper
             $this->_logger->error("OX Product Image: " . $e->getMessage());
             $imageMiscParams['image_width'] = $imageMiscParams['image_height'] = 1;
         }
-        $image = $image->getUrl();
-        $image_hover = $this->resizeImage($product, $imageId_hover, $size, $properties)->getUrl();
+        $image = $this->prepareImageUrl($image->getUrl(), $product);
+        $image_hover = $this->prepareImageUrl($this->resizeImage($product, $imageId_hover, $size, $properties)->getUrl(), $product);
         $image_hoverMiscParams = $this->getImageParams($imageId_hover);
 
         if (array_key_exists('class', $attributes)) {
@@ -526,7 +528,7 @@ class ProductImage extends AbstractHelper
                 'product_id' => $product->getId(),
                 'product' => $product,
                 'image_id' => $imageId,
-                'image_url' => $image->getUrl(),
+                'image_url' => $this->prepareImageUrl($image->getUrl(), $product),
                 'label' => $this->getLabel($product, $imageMiscParams['image_type']),
                 'width' => $imageMiscParams['image_width'],
                 'height' => $imageMiscParams['image_height'],
@@ -550,6 +552,26 @@ class ProductImage extends AbstractHelper
     public function getUrlResizedImage(Product $product, $image, $size, $properties = [])
     {
         $image = $this->resizeImage($product, $image, $size, $properties);
-        return $image->getUrl();
+        return $this->prepareImageUrl($image->getUrl(), $product);
+    }
+
+    /**
+     * Prepare image URL by appending store query parameter if store code in URL is enabled
+     *
+     * @param string $url
+     * @param Product $product
+     * @return string
+     */
+    protected function prepareImageUrl(string $url, Product $product): string
+    {
+        if ($this->scopeConfig->isSetFlag(Store::XML_PATH_STORE_IN_URL)
+            && strpos($url, StoreManagerInterface::PARAM_NAME . '=') === false
+        ) {
+            $storeCode = $product->getStore() ? $product->getStore()->getCode() : null;
+            if ($storeCode) {
+                $url .= (strpos($url, '?') !== false ? '&' : '?') . StoreManagerInterface::PARAM_NAME . '=' . $storeCode;
+            }
+        }
+        return $url;
     }
 }
